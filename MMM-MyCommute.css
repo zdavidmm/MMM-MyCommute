@@ -1,0 +1,22 @@
+.MMM-MyCommute .transit-mode {
+  width: 24px;
+  text-align: center;
+}
+
+.MMM-MyCommute .transit-mode .transit-mode-icon {
+  fill: currentColor;
+  width: 24px;
+  height: 24px;
+  vertical-align: baseline;
+  margin-bottom: -4px;
+}
+
+.MMM-MyCommute .destination-label {
+  padding-left: 6px;
+}
+
+.MMM-MyCommute .travel-time {
+  text-align: right;
+  font-size: 17px;
+  font-weight: 400;
+}
