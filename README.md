@@ -1,13 +1,13 @@
 # MMM-MyCommute
 This a module for the [MagicMirror](https://github.com/MichMich/MagicMirror/tree/develop).
 
-It shows your commute time using Google's Traffic API (requires API_KEY).
+It shows your commute time using Google's Traffic API (requires an API Key from Google).
 
-It is a fork of mrx-work-traffic by Dominic Marx.
+It is a fork of `mrx-work-traffic` by Dominic Marx.
 https://github.com/domsen123/mrx-work-traffic
 
 # Installation
-1. Navigate into your MagicMirror's `modules`folder and execute `https://github.com/jclarke0000/MMM-MyCommute.git`.
+1. Navigate into your MagicMirror `modules` folder and execute `git clone https://github.com/jclarke0000/MMM-MyCommute.git`.
 2. Go to https://developers.google.com/maps/documentation/javascript/get-api-key and get an API key.
 
 # Config
@@ -16,10 +16,10 @@ https://github.com/domsen123/mrx-work-traffic
 |`apiKey`|**REQUIRED** API Key from Google<br><br>**Type:** `string`|
 |`showHeader`|Whether to show the module header<br><br>**Type:** `boolean`<br>Defaults to `true`|
 |`headerText`|Text to show in the header<br><br>**Type:** `string`<br>Defaults to `My Commute`|
-|`origin`|**Required** The starting point for your commute.  Usually this is you home address.<br><br>**Type:** `string`<br>This is as you would see it Google Maps.  Example:  `65 Front St W, Toronto, ON M5J 1E6`|
+|`origin`|**REQUIRED** The starting point for your commute.  Usually this is you home address.<br><br>**Type:** `string`<br>This is as you would see it Google Maps.  Example:  `65 Front St W, Toronto, ON M5J 1E6`|
 |`startTime`|The start time of the window during which this module wil be visible.<br><br>**Type:** `string`<br>Must be in 24-hour time format.  Defaults to `00:00` (i.e.: midnight)|
 |`endTime`|The end time of the window during which this module wil be visible.<br><br>**Type:** `string`<br>Must be in 24-hour time format.  Defaults to `23:59` (i.e.: one minute before midnight)|
-|`destinations`|An array of destinations to which you would like to see commute times,<br><br>**Type:** `array`<br>See below for destination options.|
+|`destinations`|An array of destinations to which you would like to see commute times.<br><br>**Type:** `array` of objects.<br>See below for destination options.|
 
 Each object in the `destinations` array has the following parameters:
 
