@@ -77,4 +77,4 @@ Here is an example of an entry in `config.js`
 
 ## Special Thanks
 - [Michael Teeuw](https://github.com/MichMich) for creating the awesome [MagicMirror2](https://github.com/MichMich/MagicMirror/tree/develop) project that made this module possible.
-- [Dominic Marx](https://github.com/domsen123) for creating the original mrx-work-traffic that this module meavily borrows upon.
+- [Dominic Marx](https://github.com/domsen123) for creating the original mrx-work-traffic that this module heavily borrows upon.
