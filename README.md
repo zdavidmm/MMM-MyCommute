@@ -7,7 +7,8 @@ It is a fork of `mrx-work-traffic` by Dominic Marx.
 https://github.com/domsen123/mrx-work-traffic
 
 # Installation
-1. Navigate into your MagicMirror `modules` folder and execute `git clone https://github.com/jclarke0000/MMM-MyCommute.git`.
+1. Navigate into your MagicMirror `modules` folder and execute<br>
+`git clone https://github.com/jclarke0000/MMM-MyCommute.git`.
 2. Go to https://developers.google.com/maps/documentation/javascript/get-api-key and get an API key.
 
 # Config
