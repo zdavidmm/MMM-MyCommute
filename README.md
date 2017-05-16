@@ -29,7 +29,7 @@ Each object in the `destinations` array has the following parameters:
 |`destination`|**REQUIRED** The address of the destination<br><br>**Type:** `string`|
 |`label`|**REQUIRED** How you would like this displayed on your MagicMirror.<br><br>**Type:** `string`|
 |`mode`|Transportation mode, one of the following: `driving`, `walking`, `bicycling`, `transit`.<br><br>**Type:** `string`<br>Defaults to `driving`.|
-|`avoid`|If specified, will instruct the Google API to find a route that avoids one of the following: `tolls`,`highways`,`ferries`,`indoor`.  Any other value will be ignored.  Only one option can be specified.|
+|`avoid`|If specified, will instruct the Google API to find a route that avoids one of the following: `tolls`,`highways`,`ferries`,`indoor`.  Any other value will be ignored.  Only one option can be specified.<br><br>**Type:** `string`|
 |`color`|If specified, the colour for the icon in hexadecimal format (e.g.: `"#82BAE5"`)<br><br>**Type:** `string`<br>Defaults to white.|
 
 
