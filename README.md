@@ -29,6 +29,7 @@ Each object in the `destinations` array has the following parameters:
 |`destination`|**REQUIRED** The address of the destination<br><br>**Type:** `string`|
 |`label`|**REQUIRED** How you would like this displayed on your MagicMirror.<br><br>**Type:** `string`|
 |`mode`|Transportation mode, one of the following: `driving`, `walking`, `bicycling`, `transit`.<br><br>**Type:** `string`<br>Defaults to `driving`.|
+|`avoid`|If specified, will instruct the Google API to find a route that avoids one of the following: `tolls`,`highways`,`ferries`,`indoor`.  Any other value will be ignored.  Only one option can be specified.|
 |`color`|If specified, the colour for the icon in hexadecimal format (e.g.: `"#82BAE5"`)<br><br>**Type:** `string`<br>Defaults to white.|
 
 
@@ -64,7 +65,8 @@ Here is an example of an entry in `config.js`
       },
       {
         destination: '6301 Silver Dart Dr, Mississauga, ON L5P 1B2',
-        label: 'Pearson Airport'
+        label: 'Pearson Airport',
+        avoid: 'tolls'
       }
     ]
   }

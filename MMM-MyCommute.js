@@ -66,6 +66,13 @@ Module.register('MMM-MyCommute', {
     'bicycling':  'bike',
     'transit':    'streetcar'
   },
+
+  avoidOptions: [
+    'tolls',
+    'highways',
+    'ferries',
+    'indoor'
+  ],
   
 
   start: function() {
@@ -94,6 +101,9 @@ Module.register('MMM-MyCommute', {
     params += '&destination=' + encodeURIComponent(dest.destination);
     params += '&key=' + this.config.apikey;
     params += '&mode=' + (dest.mode == null || '' ? 'driving' : dest.mode);
+    if (dest.avoid != null && this.avoidOptions.indexOf(dest.avoid) != -1) {
+      params += '&avoid=' + dest.avoid;
+    }
     return params;
   },
   
