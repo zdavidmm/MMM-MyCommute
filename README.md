@@ -6,6 +6,9 @@ It shows your commute time using Google's Traffic API (requires an API Key from 
 It is a fork of `mrx-work-traffic` by Dominic Marx.
 https://github.com/domsen123/mrx-work-traffic
 
+![Screenshot 1](/../screenshots/mmm-mynest-scr1.png?raw=true "Screenshot 1")
+![Screenshot 2](/../screenshots/mmm-mynest-scr2.png?raw=true "Screenshot 2")
+
 # Installation
 1. Navigate into your MagicMirror `modules` folder and execute<br>
 `git clone https://github.com/jclarke0000/MMM-MyCommute.git`.
