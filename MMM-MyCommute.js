@@ -22,6 +22,14 @@ Module.register('MMM-MyCommute', {
     origin: '65 Front St W, Toronto, ON M5J 1E6',
     startTime: '00:00',
     endTime: '23:59',
+    showSummary: true,
+    poorTimeThreshold: 1.3,
+    moderateTimeThreshold: 1.1,
+    colorCodeTravelTime: true,
+    showSummary: true,
+    colorCodeTravelTime: true,
+    moderateTimeThreshold: 1.1,
+    poorTimeThreshold: 1.3,
     destinations: [
       {
         destination: '40 Bay St, Toronto, ON M5J 2X2',
@@ -64,8 +72,27 @@ Module.register('MMM-MyCommute', {
     'driving':    'car',
     'walking':    'walk',
     'bicycling':  'bike',
-    'transit':    'streetcar'
+    'tram':       'streetcar',
+    'bus':        'bus',
+    'subway':     'subway',
+    'train':      'train',
+    'rail':       'train'
   },
+
+  travelModes: [
+    'driving',
+    'walking',
+    'bicycling',
+    'transit'
+  ],
+
+  transitModes: [
+    'bus',
+    'subway',
+    'train',
+    'tram',
+    'rail'
+  ],
 
   avoidOptions: [
     'tolls',
@@ -94,13 +121,46 @@ Module.register('MMM-MyCommute', {
     },600000);
       
   },
+
+  svgIconFactory: function(glyph) {
+
+    var svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttributeNS(null, "class", "transit-mode-icon");
+    var use = document.createElementNS('http://www.w3.org/2000/svg', "use");
+    use.setAttributeNS("http://www.w3.org/1999/xlink", "href", "modules/MMM-MyCommute/icon_sprite.svg#" + glyph);
+    svg.appendChild(use);
+    
+    return(svg);
+  },
   
   getParams: function(dest) {
     var params = '?';
     params += 'origin=' + encodeURIComponent(this.config.origin);
     params += '&destination=' + encodeURIComponent(dest.destination);
     params += '&key=' + this.config.apikey;
-    params += '&mode=' + (dest.mode == null || '' ? 'driving' : dest.mode);
+
+    //travel mode
+    var mode = 'driving';
+    if (dest.mode && this.travelModes.indexOf(dest.mode) != -1) {
+      mode = dest.mode;
+    } 
+    params += '&mode=' + mode;
+
+    //transit mode if travelMode = 'transit'
+    if (mode == 'transit' && dest.transitMode) {
+      var tModes = dest.transitMode.split("|");
+      var sanitizedTransitModes = '';
+      for (var i = 0; i < tModes.length; i++) {
+        if (this.transitModes.indexOf(tModes[i]) != -1) {
+          sanitizedTransitModes += (sanitizedTransitModes == '' ? tModes[i] : "|" + tModes[i]);
+        }
+      }
+      if (sanitizedTransitModes.length > 0) {
+        params += '&transit_mode=' + sanitizedTransitModes;
+      }
+    } 
+
+    params += '&departure_time=now'; //needed for time based on traffic conditions
     if (dest.avoid != null && this.avoidOptions.indexOf(dest.avoid) != -1) {
       params += '&avoid=' + dest.avoid;
     }
@@ -136,44 +196,92 @@ Module.register('MMM-MyCommute', {
         wrapper.appendChild(header);
       } 
 
-      var table = document.createElement("table");
-      table.className = "small";
-      
       for (var i = 0; i < this.config.destinations.length; i++) {
-        var row = document.createElement("tr");
-        table.appendChild(row);
+        var row = document.createElement("div");
+        row.classList.add("row");
         
-        var iconCell = document.createElement("td");
-        iconCell.className = "transit-mode bright";
+        var icon = document.createElement("span");
+        icon.className = "transit-mode bright";
         var symbolIcon = 'car';
-        if (this.config.destinations[i].mode != null && this.symbols[this.config.destinations[i].mode] != null) {
-          symbolIcon = this.symbols[this.config.destinations[i].mode];
+        
+        if (this.config.destinations[i].mode) {
+          if (this.config.destinations[i].mode == 'transit') {
+            if (this.config.destinations[i].transitMode && this.symbols[this.config.destinations[i].transitMode.split("|")[0]]) {
+              symbolIcon = this.symbols[this.config.destinations[i].transitMode.split("|")[0]];
+            } else if (this.config.destinations[i].transfers) {
+              symbolIcon = this.symbols[this.config.destinations[i].transfers[0].vehicle.toLowerCase()];
+            } else {
+              symbolIcon = 'streetcar';
+            }
+          } else if (this.symbols[this.config.destinations[i].mode] != null) {
+            symbolIcon = this.symbols[this.config.destinations[i].mode];
+          }
         }
         if (this.config.destinations[i].color) {
-          iconCell.setAttribute("style", "color:" + this.config.destinations[i].color);
+          icon.setAttribute("style", "color:" + this.config.destinations[i].color);
         }
 
-        var svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
-        svg.setAttributeNS(null, "class", "transit-mode-icon");
-        var use = document.createElementNS('http://www.w3.org/2000/svg', "use");
-        use.setAttributeNS("http://www.w3.org/1999/xlink", "href", "modules/MMM-MyCommute/icon_sprite.svg#" + symbolIcon);
-        svg.appendChild(use);
-        iconCell.appendChild(svg);
+        var svg = this.svgIconFactory(symbolIcon);
+        icon.appendChild(svg);
 
-        row.appendChild(iconCell);
+        row.appendChild(icon);
         
-        var locationCell = document.createElement("td");
-        locationCell.className = "destination-label bright";
-        locationCell.innerHTML = this.config.destinations[i].label;
-        row.appendChild(locationCell);
+        var destination = document.createElement("span");
+        destination.className = "destination-label bright";
+        destination.innerHTML = this.config.destinations[i].label;
+        row.appendChild(destination);
         
-        var timeCell = document.createElement("td");
-        timeCell.className = "travel-time";
-        timeCell.innerHTML =  this.config.destinations[i].time ?  this.config.destinations[i].time + ' min' : "<i class='fa fa-spin fa-circle-o-notch'></i>";
-        row.appendChild(timeCell);
+        var time = document.createElement("span");
+        time.className = "travel-time";
+
+        if (this.config.destinations[i].time) {
+          time.innerHTML =  (this.config.destinations[i].timeInTraffic ? this.config.destinations[i].timeInTraffic : this.config.destinations[i].time) + " min";
+
+          var variance = (this.config.destinations[i].timeInTraffic ? this.config.destinations[i].timeInTraffic / this.config.destinations[i].time : 1);
+
+          if (this.config.colorCodeTravelTime) {            
+            if (variance > this.config.poorTimeThreshold) {
+              time.classList.add("status-poor");
+            } else if (variance > this.config.moderateTimeThreshold) {
+              time.classList.add("status-moderate");
+            } else {
+              time.classList.add("status-good");
+            }
+          } 
+
+        } else {
+          time.innerHTML = "<i class='fa fa-spin fa-circle-o-notch'></i>"; //font-awesome spinning circle icon
+        }
+
+        row.appendChild(time);
+
+        if (this.config.showSummary) {        
+          var routeSummary = document.createElement("span");
+          routeSummary.classList.add("route-summary");
+          if (this.config.destinations[i].mode == 'transit' && this.config.destinations[i].transfers) {
+
+            for (var j = 0; j < this.config.destinations[i].transfers.length; j++) {
+              var transitLeg = document.createElement("span");
+              transitLeg.classList.add("transit-leg");
+              transitLeg.appendChild(this.svgIconFactory(this.config.destinations[i].transfers[j].vehicle.toLowerCase()));
+
+              var routeNo = document.createElement("span");
+              routeNo.innerHTML = this.config.destinations[i].transfers[j].number;
+              transitLeg.appendChild(routeNo);
+
+              routeSummary.appendChild(transitLeg);
+            }
+
+            row.appendChild(routeSummary);
+
+          } else if (this.config.destinations[i].summary)  {          
+            routeSummary.innerHTML = this.config.destinations[i].summary;
+            row.appendChild(routeSummary);
+          }
+        } 
+
+        wrapper.appendChild(row);
       }
-
-      wrapper.appendChild(table);
 
     }
 
@@ -183,8 +291,13 @@ Module.register('MMM-MyCommute', {
   socketNotificationReceived: function(notification, payload) {
     if ( notification === 'GOOGLE_TRAFFIC_LIST' ) {
       for(var i = 0; i<this.config.destinations.length; i++) {
-        if( this.config.destinations[i].label === decodeURIComponent(payload.label))
-          this.config.destinations[i].time = Math.floor( payload.duration / 60 );
+        if( this.config.destinations[i].label === decodeURIComponent(payload.label)) {
+          this.config.destinations[i].time = Math.floor(payload.duration / 60);
+          this.config.destinations[i].timeInTraffic = Math.floor(payload.traffic_duration / 60);
+          this.config.destinations[i].summary = payload.summary;
+          this.config.destinations[i].transfers = payload.transfers;
+        }
+
       }
       this.updateDom();
     }

@@ -20,6 +20,10 @@ https://github.com/domsen123/mrx-work-traffic
 |`origin`|**REQUIRED** The starting point for your commute.  Usually this is you home address.<br><br>**Type:** `string`<br>This is as you would see it Google Maps.  Example:  `65 Front St W, Toronto, ON M5J 1E6`|
 |`startTime`|The start time of the window during which this module wil be visible.<br><br>**Type:** `string`<br>Must be in 24-hour time format.  Defaults to `00:00` (i.e.: midnight)|
 |`endTime`|The end time of the window during which this module wil be visible.<br><br>**Type:** `string`<br>Must be in 24-hour time format.  Defaults to `23:59` (i.e.: one minute before midnight)|
+|`showSummary`|Whether to show a brief summary of the route<br><br>**Type:** `boolean`<br>Defaults to `true`|
+|`colorCodeTravelTime`|Whether to colour-code the travel time red, yellow, or green based on traffic.<br><br>**Type:** `boolean`<br>Defaults to `true`|
+|`moderateTimeThreshold`|The amount of variance between time in traffic vs absolute fastest time after which the time is coloured yellow|<br><br>**Type:** `float`<br>Defaults to `1.1` (i.e.: 10% longer than fastest time)|
+|`poorTimeThreshold`|The amount of variance between time in traffic vs absolute fastest time after which the time is coloured red|<br><br>**Type:** `float`<br>Defaults to `1.3` (i.e.: 30% longer than fastest time)|
 |`destinations`|An array of destinations to which you would like to see commute times.<br><br>**Type:** `array` of objects.<br>See below for destination options.|
 
 Each object in the `destinations` array has the following parameters:
@@ -29,6 +33,7 @@ Each object in the `destinations` array has the following parameters:
 |`destination`|**REQUIRED** The address of the destination<br><br>**Type:** `string`|
 |`label`|**REQUIRED** How you would like this displayed on your MagicMirror.<br><br>**Type:** `string`|
 |`mode`|Transportation mode, one of the following: `driving`, `walking`, `bicycling`, `transit`.<br><br>**Type:** `string`<br>Defaults to `driving`.|
+|`transitMode`|If `mode` = `transit` you can additionally specify one or more of the following: `bus`, `subway`, `train`, `tram`, or `rail`.<br><br>**Type:** `string`<br>.Separate multiple entries with the `|` character (e.g.: `"transitMode" : "bus|subway|tram"`). Specifying `rail`indicates that the calculated route should prefer travel by train, tram, light rail, and subway.  Equivalenet to `train|tram|subway`|
 |`avoid`|If specified, will instruct the Google API to find a route that avoids one of the following: `tolls`,`highways`,`ferries`,`indoor`.  Any other value will be ignored.  Only one option can be specified.<br><br>**Type:** `string`|
 |`color`|If specified, the colour for the icon in hexadecimal format (e.g.: `"#82BAE5"`)<br><br>**Type:** `string`<br>Defaults to white.|
 

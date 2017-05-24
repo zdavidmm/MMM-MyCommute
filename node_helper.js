@@ -8,7 +8,7 @@
 var NodeHelper = require("node_helper");
 var request = require('request');
  
- module.exports = NodeHelper.create({
+module.exports = NodeHelper.create({
     // subclass start method.
     start: function() {
         console.log("====================== Starting node_helper for module [" + this.name + "]");
@@ -17,9 +17,9 @@ var request = require('request');
 	
 	// subclass socketNotificationReceived
     socketNotificationReceived: function(notification, payload){
-        if (notification === 'GOOGLE_TRAFFIC_GET') {
-			this.getTimeFromGoogle( payload );
-        }
+      if (notification === 'GOOGLE_TRAFFIC_GET') {
+		    this.getTimeFromGoogle( payload );
+      }
     },
 	
 	getTimeFromGoogle: function( destinations ) {
@@ -30,7 +30,10 @@ var request = require('request');
 				var _obj = {
 					destination: null,
 					duration : null,
-					label: null
+          traffic_duration : null,
+					label: null,
+          summary: null,
+          transfers: null,
 				};
 				
 				var _path =  response.req.path;
@@ -43,7 +46,18 @@ var request = require('request');
 					var data = JSON.parse(body);
 					_obj.destination = data.routes[0].legs[0].end_address;
 					_obj.duration = data.routes[0].legs[0].duration.value;
-					
+          if (data.routes[0].legs[0].duration_in_traffic) {            
+            _obj.traffic_duration = data.routes[0].legs[0].duration_in_traffic.value;
+          }
+          var transfers = new Array();
+          var steps = data.routes[0].legs[0].steps;
+          for (var i = 0; i < steps.length;  i++) {
+            if (steps[i].travel_mode == 'TRANSIT') {
+              transfers.push({"vehicle":steps[i].transit_details.line.vehicle.type, "number":steps[i].transit_details.line.short_name});
+            }
+          }
+          _obj.transfers = transfers;
+          _obj.summary = data.routes[0].summary;
 					_self.sendSocketNotification('GOOGLE_TRAFFIC_LIST', _obj);
 				}
 				else{
@@ -53,4 +67,4 @@ var request = require('request');
 		}
 	}
 	
- });
+});
