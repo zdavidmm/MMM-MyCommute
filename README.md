@@ -33,7 +33,7 @@ Each object in the `destinations` array has the following parameters:
 |`destination`|**REQUIRED** The address of the destination<br><br>**Type:** `string`|
 |`label`|**REQUIRED** How you would like this displayed on your MagicMirror.<br><br>**Type:** `string`|
 |`mode`|Transportation mode, one of the following: `driving`, `walking`, `bicycling`, `transit`.<br><br>**Type:** `string`<br>Defaults to `driving`.|
-|`transitMode`|If `mode` = `transit` you can additionally specify one or more of the following: `bus`, `subway`, `train`, `tram`, or `rail`.<br><br>**Type:** `string`<br>.Separate multiple entries with the `|` character (e.g.: `"transitMode" : "bus|subway|tram"`). Specifying `rail`indicates that the calculated route should prefer travel by train, tram, light rail, and subway.  Equivalenet to `train|tram|subway`|
+|`transitMode`|If `mode` = `transit` you can additionally specify one or more of the following: `bus`, `subway`, `train`, `tram`, or `rail`.<br><br>**Type:** `string`<br>.Separate multiple entries with the `&#124;` character (e.g.: `"transitMode" : "bus&#124;subway&#124;tram"`). Specifying `rail`indicates that the calculated route should prefer travel by train, tram, light rail, and subway.  Equivalenet to `train&#124;tram&#124;subway`|
 |`avoid`|If specified, will instruct the Google API to find a route that avoids one of the following: `tolls`,`highways`,`ferries`,`indoor`.  Any other value will be ignored.  Only one option can be specified.<br><br>**Type:** `string`|
 |`color`|If specified, the colour for the icon in hexadecimal format (e.g.: `"#82BAE5"`)<br><br>**Type:** `string`<br>Defaults to white.|
 
