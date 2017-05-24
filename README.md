@@ -22,8 +22,8 @@ https://github.com/domsen123/mrx-work-traffic
 |`endTime`|The end time of the window during which this module wil be visible.<br><br>**Type:** `string`<br>Must be in 24-hour time format.  Defaults to `23:59` (i.e.: one minute before midnight)|
 |`showSummary`|Whether to show a brief summary of the route<br><br>**Type:** `boolean`<br>Defaults to `true`|
 |`colorCodeTravelTime`|Whether to colour-code the travel time red, yellow, or green based on traffic.<br><br>**Type:** `boolean`<br>Defaults to `true`|
-|`moderateTimeThreshold`|The amount of variance between time in traffic vs absolute fastest time after which the time is coloured yellow|<br><br>**Type:** `float`<br>Defaults to `1.1` (i.e.: 10% longer than fastest time)|
-|`poorTimeThreshold`|The amount of variance between time in traffic vs absolute fastest time after which the time is coloured red|<br><br>**Type:** `float`<br>Defaults to `1.3` (i.e.: 30% longer than fastest time)|
+|`moderateTimeThreshold`|The amount of variance between time in traffic vs absolute fastest time after which the time is coloured yellow<br><br>**Type:** `float`<br>Defaults to `1.1` (i.e.: 10% longer than fastest time)|
+|`poorTimeThreshold`|The amount of variance between time in traffic vs absolute fastest time after which the time is coloured red<br><br>**Type:** `float`<br>Defaults to `1.3` (i.e.: 30% longer than fastest time)|
 |`destinations`|An array of destinations to which you would like to see commute times.<br><br>**Type:** `array` of objects.<br>See below for destination options.|
 
 Each object in the `destinations` array has the following parameters:
