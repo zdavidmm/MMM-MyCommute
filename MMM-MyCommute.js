@@ -69,14 +69,15 @@ Module.register('MMM-MyCommute', {
 
   // Icons to use for each transportation mode
   symbols: {
-    'driving':    'car',
-    'walking':    'walk',
-    'bicycling':  'bike',
-    'tram':       'streetcar',
-    'bus':        'bus',
-    'subway':     'subway',
-    'train':      'train',
-    'rail':       'train'
+    'driving':          'car',
+    'walking':          'walk',
+    'bicycling':        'bike',
+    'tram':             'streetcar',
+    'bus':              'bus',
+    'subway':           'subway',
+    'train':            'train',
+    'rail':             'train',
+    'high_speed_train': 'train'
   },
 
   travelModes: [
@@ -263,7 +264,7 @@ Module.register('MMM-MyCommute', {
             for (var j = 0; j < this.config.destinations[i].transfers.length; j++) {
               var transitLeg = document.createElement("span");
               transitLeg.classList.add("transit-leg");
-              transitLeg.appendChild(this.svgIconFactory(this.config.destinations[i].transfers[j].vehicle.toLowerCase()));
+              transitLeg.appendChild(this.svgIconFactory(this.symbols[this.config.destinations[i].transfers[j].vehicle.toLowerCase()]));
 
               var routeNo = document.createElement("span");
               routeNo.innerHTML = this.config.destinations[i].transfers[j].number;
