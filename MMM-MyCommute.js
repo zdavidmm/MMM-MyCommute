@@ -77,7 +77,19 @@ Module.register('MMM-MyCommute', {
     'subway':           'subway',
     'train':            'train',
     'rail':             'train',
-    'high_speed_train': 'train'
+    'metro_rail':       'subway',
+    'monorail':         'train',
+    'heavy_rail':       'train',
+    'commuter_train':   'train',
+    'high_speed_train': 'train',
+    'intercity_bus':    'bus',
+    'trolleybus':       'streetcar',
+    'share_taxi':       'taxi',
+    'ferry':            'boat',
+    'cable_car':        'gondola',
+    'gondola_lift':     'gondola',
+    'funicular':        'gondola',
+    'other':            'streetcar'
   },
 
   travelModes: [
