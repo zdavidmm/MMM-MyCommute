@@ -95,7 +95,7 @@ Each object in the `destinations` array has the following parameters:
     </tr>
     <tr>
       <td><code>avoid</code></td>
-      <td>If specified, will instruct the Google API to find a route that avoids one of the following: <code>tolls</code>,<code>highways</code>,<code>ferries</code>,<code>indoor</code>.  Any other value will be ignored.  Only one option can be specified.<br><br><strong>Type:</strong> <code>string</code></td>
+      <td>If specified, will instruct the Google API to find a route that avoids one or more of the following: <code>tolls</code>,<code>highways</code>,<code>ferries</code>,<code>indoor</code>.  Any other value will be ignored.  Multiple options can be specifieds by separating them with the <code>|</code> character (e.g.: <code>"avoid" : "highways|tolls"</code>).<br><br><strong>Type:</strong> <code>string</code></td>
     </tr>
     <tr>
       <td><code>alternatives</code></td>

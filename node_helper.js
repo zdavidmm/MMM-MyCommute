@@ -57,6 +57,8 @@ module.exports = NodeHelper.create({
       for(var i = 0; i < this.config.destinations.length; i++) {
         var url = 'https://maps.googleapis.com/maps/api/directions/json' + this.getParams(this.config.destinations[i]);
         this.urls.push( url );
+
+        //console.log(url);
       }
 
       //first data opull after new config
@@ -104,9 +106,22 @@ module.exports = NodeHelper.create({
     }
 
     params += '&departure_time=now'; //needed for time based on traffic conditions
-    if (dest.avoid != null && this.avoidOptions.indexOf(dest.avoid) != -1) {
-      params += '&avoid=' + dest.avoid;
+
+    //avoid
+    if (dest.avoid) {
+      var a = dest.avoid.split("|");
+      var sanitizedAvoidOptions = '';
+      for (var i = 0; i < a.length; i++) {
+        if (this.avoidOptions.indexOf(a[i]) != -1) {
+          sanitizedAvoidOptions += (sanitizedAvoidOptions == '' ? a[i] : "|" + a[i]);
+        }
+      }
+      if (sanitizedAvoidOptions.length > 0) {
+        params += '&avoid=' + sanitizedAvoidOptions;
+      }
+
     }
+
     return params;
 
   },
