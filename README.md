@@ -34,7 +34,7 @@ https://github.com/domsen123/mrx-work-traffic
     </tr>
     <tr>
       <td><code>origin</code></td>
-      <td><strong>REQUIRED</strong> The starting point for your commute.  Usually this is you home address.<br><br><strong>Type:</strong> <code>string</code><br>This is as you would see it Google Maps.  Example:  <code>65 Front St W, Toronto, ON M5J 1E6</code></td>
+      <td><strong>REQUIRED</strong> The starting point for your commute.  Usually this is your home address.<br><br><strong>Type:</strong> <code>string</code><br>This is as you would see it Google Maps.  Example:  <code>65 Front St W, Toronto, ON M5J 1E6</code></td>
     </tr>
     <tr>
       <td><code>startTime</code></td>
@@ -91,11 +91,11 @@ Each object in the `destinations` array has the following parameters:
     </tr>
     <tr>
       <td><code>transitMode</code></td>
-      <td>If <code>mode</code> = <code>transit</code> you can additionally specify one or more of the following: <code>bus</code>, <code>subway</code>, <code>train</code>, <code>tram</code>, or <code>rail</code>.<br><br><strong>Type:</strong> <code>string</code><br>.Separate multiple entries with the <code>|</code> character (e.g.: <code>"transitMode" : "bus|subway|tram"</code>). Specifying <code>rail</code>indicates that the calculated route should prefer travel by train, tram, light rail, and subway.  Equivalenet to <code>train|tram|subway</code></td>
+      <td>If <code>mode</code> = <code>transit</code> you can additionally specify one or more of the following: <code>bus</code>, <code>subway</code>, <code>train</code>, <code>tram</code>, or <code>rail</code>.<br><br><strong>Type:</strong> <code>string</code>.<br>Separate multiple entries with the <code>|</code> character (e.g.: <code>"transitMode" : "bus|subway|tram"</code>). Specifying <code>rail</code>indicates that the calculated route should prefer travel by train, tram, light rail, and subway.  Equivalenet to <code>train|tram|subway</code></td>
     </tr>
     <tr>
       <td><code>avoid</code></td>
-      <td>If specified, will instruct the Google API to find a route that avoids one or more of the following: <code>tolls</code>,<code>highways</code>,<code>ferries</code>,<code>indoor</code>.  Any other value will be ignored.  Multiple options can be specifieds by separating them with the <code>|</code> character (e.g.: <code>"avoid" : "highways|tolls"</code>).<br><br><strong>Type:</strong> <code>string</code></td>
+      <td>If specified, will instruct the Google API to find a route that avoids one or more of the following: <code>tolls</code>,<code>highways</code>,<code>ferries</code>,<code>indoor</code>.<br><br><strong>Type:</strong> <code>string</code>.<br>Separate multiple entries with the <code>|</code> character (e.g.: <code>"avoid" : "highways|tolls"</code>).</td>
     </tr>
     <tr>
       <td><code>alternatives</code></td>
