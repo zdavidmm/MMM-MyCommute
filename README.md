@@ -94,6 +94,10 @@ Each object in the `destinations` array has the following parameters:
       <td>If <code>mode</code> = <code>transit</code> you can additionally specify one or more of the following: <code>bus</code>, <code>subway</code>, <code>train</code>, <code>tram</code>, or <code>rail</code>.<br><br><strong>Type:</strong> <code>string</code>.<br>Separate multiple entries with the <code>|</code> character (e.g.: <code>"transitMode" : "bus|subway|tram"</code>). Specifying <code>rail</code>indicates that the calculated route should prefer travel by train, tram, light rail, and subway.  Equivalenet to <code>train|tram|subway</code></td>
     </tr>
     <tr>
+      <td><code>waypoints</code></td>
+      <td>If specified, it instructs Google to find the route that passes through the waypoints to provide.<br><br><strong>Type:</strong> <code>string</code>.<br>Separate multiple entries with the <code>|</code> character.  See https://developers.google.com/maps/documentation/directions/intro#Waypoints for details on how waypoints can be specified.</td>
+    </tr>
+    <tr>
       <td><code>avoid</code></td>
       <td>If specified, will instruct the Google API to find a route that avoids one or more of the following: <code>tolls</code>,<code>highways</code>,<code>ferries</code>,<code>indoor</code>.<br><br><strong>Type:</strong> <code>string</code>.<br>Separate multiple entries with the <code>|</code> character (e.g.: <code>"avoid" : "highways|tolls"</code>).</td>
     </tr>

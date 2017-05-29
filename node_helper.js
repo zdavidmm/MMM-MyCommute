@@ -58,7 +58,7 @@ module.exports = NodeHelper.create({
         var url = 'https://maps.googleapis.com/maps/api/directions/json' + this.getParams(this.config.destinations[i]);
         this.urls.push( url );
 
-        //console.log(url);
+        // console.log(url);
       }
 
       //first data opull after new config
@@ -105,7 +105,13 @@ module.exports = NodeHelper.create({
       params += '&alternatives=true';
     }
 
-    params += '&departure_time=now'; //needed for time based on traffic conditions
+    if (dest.waypoints) {
+      var waypoints = dest.waypoints.split("|");
+      for (var i = 0; i < waypoints.length; i++) {
+        waypoints[i] = encodeURIComponent(waypoints[i]);
+      }
+      params += '&waypoints=' + waypoints.join("|");
+    } 
 
     //avoid
     if (dest.avoid) {
@@ -121,6 +127,8 @@ module.exports = NodeHelper.create({
       }
 
     }
+
+    params += '&departure_time=now'; //needed for time based on traffic conditions
 
     return params;
 
