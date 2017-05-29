@@ -58,7 +58,7 @@ module.exports = NodeHelper.create({
         var url = 'https://maps.googleapis.com/maps/api/directions/json' + this.getParams(this.config.destinations[i]);
         this.urls.push( url );
 
-        // console.log(url);
+        console.log(url);
       }
 
       //first data opull after new config
@@ -108,7 +108,7 @@ module.exports = NodeHelper.create({
     if (dest.waypoints) {
       var waypoints = dest.waypoints.split("|");
       for (var i = 0; i < waypoints.length; i++) {
-        waypoints[i] = encodeURIComponent(waypoints[i]);
+        waypoints[i] = "via:" + encodeURIComponent(waypoints[i]);
       }
       params += '&waypoints=' + waypoints.join("|");
     } 
