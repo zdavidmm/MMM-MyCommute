@@ -98,6 +98,10 @@ Each object in the `destinations` array has the following parameters:
       <td>If specified, will instruct the Google API to find a route that avoids one of the following: <code>tolls</code>,<code>highways</code>,<code>ferries</code>,<code>indoor</code>.  Any other value will be ignored.  Only one option can be specified.<br><br><strong>Type:</strong> <code>string</code></td>
     </tr>
     <tr>
+      <td><code>alternatives</code></td>
+      <td>If specified, will instruct the Google API to provide times for alternate routes.  Must be used with <code>showSummary: true</code><br><br><strong>Type:</strong> <code>boolean</code></td>
+    </tr>
+    <tr>
       <td><code>color</code></td>
       <td>If specified, the colour for the icon in hexadecimal format (e.g.: <code>"#82BAE5"</code>)<br><br><strong>Type:</strong> <code>string</code><br>Defaults to white.</td>
     </tr>

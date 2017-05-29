@@ -3,6 +3,7 @@
   padding: 1px;
   border-bottom: solid 1px #222;
   min-height: 35px;
+  min-width: 300px;
 }
 
 .MMM-MyCommute .transit-mode {
@@ -31,18 +32,24 @@
   text-overflow: ellipsis;
   line-height: 25px;
   margin-top: 4px;
+  margin-bottom: 6px;
 }
 
-.MMM-MyCommute .travel-time {
+.MMM-MyCommute .row.with-multiple-routes .destination-label {
+  margin-right: 0px;
+}
+
+.MMM-MyCommute .travel-time,
+.MMM-MyCommute .loading-icon {
   text-align: right;
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 400;
   display: block;
   white-space: nowrap;
   position: absolute;
   top: 6px;
   right: 0px;
-  line-height: 1;
+  line-height: 18px;
   margin-top: 4px;
 }
 
@@ -58,15 +65,29 @@
 
 
 .MMM-MyCommute .route-summary {
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 400;
   display: block;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 25.5px;
-  margin-bottom: 2px;
+  line-height: 18px;
+  margin-bottom: 6px;
   margin-left: 30px;
+  text-transform: uppercase;
+}
+
+.MMM-MyCommute .route-summary-outer {
+  position: relative;  
+}
+
+.MMM-MyCommute .route-summary-outer .route-summary {
+  margin-right: 60px;
+}
+
+.MMM-MyCommute .route-summary-outer .travel-time {
+  top: 0px;
+  margin-top: 0px;
 }
 
 .MMM-MyCommute .route-summary .transit-leg {
