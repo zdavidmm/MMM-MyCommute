@@ -7,6 +7,7 @@
 
 var NodeHelper = require("node_helper");
 var request = require('request');
+var moment = require('moment');
  
 module.exports = NodeHelper.create({
 
@@ -38,7 +39,7 @@ module.exports = NodeHelper.create({
 
     //set up helper variables
     this.API_URL = 'https://maps.googleapis.com/maps/api/directions/json';
-    this.POLL_FREQUENCY = 600000; //poll every 10 minutes
+    this.POLL_FREQUENCY = 60000; //poll every minute
 
     this.dataPollStarted = false; //flag for whether the recurring data pull has been started
     this.urls = []; //container for the configured URLs
@@ -58,7 +59,7 @@ module.exports = NodeHelper.create({
         var url = 'https://maps.googleapis.com/maps/api/directions/json' + this.getParams(this.config.destinations[i]);
         this.urls.push( url );
 
-        console.log(url);
+        // console.log(url);
       }
 
       //first data opull after new config
@@ -69,7 +70,7 @@ module.exports = NodeHelper.create({
       if (!this.dataPollStarted)
       setInterval(function(){
         self.getPredictions();
-      },600000);
+      }, this.POLL_FREQUENCY);
 
     }
   },
@@ -135,7 +136,7 @@ module.exports = NodeHelper.create({
   },
 	
 	getPredictions: function() {
-		var self = this;		
+		var self = this;
 
 		this.urls.forEach(function(url, index) {
 			request({url: url, method: 'GET'}, function(error, response, body) {
@@ -161,10 +162,21 @@ module.exports = NodeHelper.create({
             }
             if (self.config.destinations[index].mode && self.config.destinations[index].mode == 'transit') {
               var transitInfo = new Array();
+              var gotFirstTransitLeg = false;
               for (var j = 0; j < r.legs[0].steps.length; j++) {
                 var s = r.legs[0].steps[j];
+
                 if (s.transit_details) {
-                  transitInfo.push({routeLabel: s.transit_details.line.short_name, vehicle: s.transit_details.line.vehicle.type});
+                  var arrivalTime = '';
+                  if (!gotFirstTransitLeg) {
+                    gotFirstTransitLeg = true;
+                    var now = moment();
+                    var nextVehicleTime = moment(s.transit_details.departure_time.value * 1000);
+                    var duration = moment.duration(nextVehicleTime.diff(now));
+
+                    arrivalTime = ' <span class="transit-arrival-time">(in ' + Math.floor(duration.asMinutes()) + ' min)</span>';
+                  }
+                  transitInfo.push({routeLabel: s.transit_details.line.short_name + arrivalTime, vehicle: s.transit_details.line.vehicle.type});
                 }
                 routeObj.transitInfo = transitInfo;
               }
