@@ -138,8 +138,6 @@ module.exports = NodeHelper.create({
 	getPredictions: function() {
 		var self = this;
 
-    console.log("MyCommute: getPredictions " + moment().format("h:mm a") );
-
 		this.urls.forEach(function(url, index) {
 			request({url: url, method: 'GET'}, function(error, response, body) {
 				

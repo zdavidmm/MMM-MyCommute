@@ -94,6 +94,10 @@ Each object in the `destinations` array has the following parameters:
       <td>If <code>mode</code> = <code>transit</code> you can additionally specify one or more of the following: <code>bus</code>, <code>subway</code>, <code>train</code>, <code>tram</code>, or <code>rail</code>.<br><br><strong>Type:</strong> <code>string</code>.<br>Separate multiple entries with the <code>|</code> character (e.g.: <code>"transitMode" : "bus|subway|tram"</code>). Specifying <code>rail</code>indicates that the calculated route should prefer travel by train, tram, light rail, and subway.  Equivalenet to <code>train|tram|subway</code></td>
     </tr>
     <tr>
+      <td><code>showNextVehicleDeparture</code></td>
+      <td>If <code>mode</code> = <code>transit</code> the time of the next departure of the first vehicle on your route will be displayed in the route summary.  Only visible when <code>showSummary = true</code>.<br><br><strong>Type:</strong> <code>boolean</code>.</td>
+    </tr>
+    <tr>
       <td><code>waypoints</code></td>
       <td>If specified, it instructs Google to find the route that passes through the waypoints you specify.<br><br><strong>Type:</strong> <code>string</code>.<br>Separate multiple entries with the <code>|</code> character.  See https://developers.google.com/maps/documentation/directions/intro#Waypoints for details on how waypoints can be specified.<br><strong>NOTE:</strong> your waypoints will automatically be prefixed with <code>via:</code> so that they are not treated as stopovers.  This can cause Google to plan an erratic route.  if you find your time predictions are wildly overestimated, then try adjusting your waypoints.  Intersections where you would normally make a turn on this roite usually work well (e.g.: <code>Main St & Southwood Drive Toronto ON</code>).</td>
     </tr>
