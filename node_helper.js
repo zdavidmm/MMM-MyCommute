@@ -39,7 +39,7 @@ module.exports = NodeHelper.create({
 
     //set up helper variables
     this.API_URL = 'https://maps.googleapis.com/maps/api/directions/json';
-    this.POLL_FREQUENCY = 60000; //poll every minute
+    this.POLL_FREQUENCY = 10 * 60 * 1000; //poll every 10 minutes
 
     this.dataPollStarted = false; //flag for whether the recurring data pull has been started
     this.urls = []; //container for the configured URLs
@@ -138,6 +138,8 @@ module.exports = NodeHelper.create({
 	getPredictions: function() {
 		var self = this;
 
+    console.log("MyCommute: getPredictions " + moment().format("h:mm a") );
+
 		this.urls.forEach(function(url, index) {
 			request({url: url, method: 'GET'}, function(error, response, body) {
 				
@@ -168,13 +170,9 @@ module.exports = NodeHelper.create({
 
                 if (s.transit_details) {
                   var arrivalTime = '';
-                  if (!gotFirstTransitLeg) {
+                  if (!gotFirstTransitLeg && self.config.destinations[index].showNextVehicleDeparture) {
                     gotFirstTransitLeg = true;
-                    var now = moment();
-                    var nextVehicleTime = moment(s.transit_details.departure_time.value * 1000);
-                    var duration = moment.duration(nextVehicleTime.diff(now));
-
-                    arrivalTime = ' <span class="transit-arrival-time">(in ' + Math.floor(duration.asMinutes()) + ' min)</span>';
+                    arrivalTime = ' <span class="transit-arrival-time">(next at ' + s.transit_details.departure_time.text + ')</span>';
                   }
                   transitInfo.push({routeLabel: s.transit_details.line.short_name + arrivalTime, vehicle: s.transit_details.line.vehicle.type});
                 }
