@@ -40,7 +40,8 @@
 }
 
 .MMM-MyCommute .travel-time,
-.MMM-MyCommute .loading-icon {
+.MMM-MyCommute .loading-icon,
+.MMM-MyCommute .route-error {
   text-align: right;
   font-size: 16px;
   font-weight: 400;
@@ -51,6 +52,10 @@
   right: 0px;
   line-height: 18px;
   margin-top: 4px;
+}
+
+.MMM-MyCommute .route-error {
+  color: #be0e0e;
 }
 
 

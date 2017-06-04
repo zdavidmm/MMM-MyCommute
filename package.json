@@ -1,0 +1,26 @@
+{
+  "name": "mmmmycommute",
+  "version": "1.0.0",
+  "description": "MagicMirror Module for commute traffic times",
+  "main": "MMM-MyCommute.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jclarke0000/MMM-MyCommute.git"
+  },
+  "keywords": [
+    "MagicMirror",
+    "Module",
+    "Traffic",
+    "Commute"
+  ],
+  "author": "Jeff Clarke",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jclarke0000/MMM-MyCommute/issues"
+  },
+  "homepage": "https://github.com/jclarke0000/MMM-MyCommute#readme",
+  "dependencies": {
+    "moment": "^2.18.1",
+    "request": "^2.81.0"
+  }
+}

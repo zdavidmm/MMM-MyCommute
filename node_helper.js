@@ -36,14 +36,6 @@ module.exports = NodeHelper.create({
 
   start: function() {
     console.log("====================== Starting node_helper for module [" + this.name + "]");
-
-    //set up helper variables
-    this.API_URL = 'https://maps.googleapis.com/maps/api/directions/json';
-    this.POLL_FREQUENCY = 10 * 60 * 1000; //poll every 10 minutes
-
-    this.dataPollStarted = false; //flag for whether the recurring data pull has been started
-    this.urls = []; //container for the configured URLs
-
   },
   
   
@@ -51,145 +43,86 @@ module.exports = NodeHelper.create({
   socketNotificationReceived: function(notification, payload){
     if (notification === 'GOOGLE_TRAFFIC_GET') {
 
-      this.config = payload;
-
-      //build URLs
-      this.urls = new Array();
-      for(var i = 0; i < this.config.destinations.length; i++) {
-        var url = 'https://maps.googleapis.com/maps/api/directions/json' + this.getParams(this.config.destinations[i]);
-        this.urls.push( url );
-
-        // console.log(url);
-      }
-
       //first data opull after new config
-      this.getPredictions();
-
-      //set up recurring data pull
-      var self = this;
-      if (!this.dataPollStarted)
-      setInterval(function(){
-        self.getPredictions();
-      }, this.POLL_FREQUENCY);
+      this.getPredictions(payload);
 
     }
   },
 
-  getParams: function(dest) {
 
-    var params = '?';
-    params += 'origin=' + encodeURIComponent(this.config.origin);
-    params += '&destination=' + encodeURIComponent(dest.destination);
-    params += '&key=' + this.config.apikey;
-
-    //travel mode
-    var mode = 'driving';
-    if (dest.mode && this.travelModes.indexOf(dest.mode) != -1) {
-      mode = dest.mode;
-    } 
-    params += '&mode=' + mode;
-
-    //transit mode if travelMode = 'transit'
-    if (mode == 'transit' && dest.transitMode) {
-      var tModes = dest.transitMode.split("|");
-      var sanitizedTransitModes = '';
-      for (var i = 0; i < tModes.length; i++) {
-        if (this.transitModes.indexOf(tModes[i]) != -1) {
-          sanitizedTransitModes += (sanitizedTransitModes == '' ? tModes[i] : "|" + tModes[i]);
-        }
-      }
-      if (sanitizedTransitModes.length > 0) {
-        params += '&transit_mode=' + sanitizedTransitModes;
-      }
-    } 
-    if (dest.alternatives == true) {
-      params += '&alternatives=true';
-    }
-
-    if (dest.waypoints) {
-      var waypoints = dest.waypoints.split("|");
-      for (var i = 0; i < waypoints.length; i++) {
-        waypoints[i] = "via:" + encodeURIComponent(waypoints[i]);
-      }
-      params += '&waypoints=' + waypoints.join("|");
-    } 
-
-    //avoid
-    if (dest.avoid) {
-      var a = dest.avoid.split("|");
-      var sanitizedAvoidOptions = '';
-      for (var i = 0; i < a.length; i++) {
-        if (this.avoidOptions.indexOf(a[i]) != -1) {
-          sanitizedAvoidOptions += (sanitizedAvoidOptions == '' ? a[i] : "|" + a[i]);
-        }
-      }
-      if (sanitizedAvoidOptions.length > 0) {
-        params += '&avoid=' + sanitizedAvoidOptions;
-      }
-
-    }
-
-    params += '&departure_time=now'; //needed for time based on traffic conditions
-
-    return params;
-
-  },
 	
-	getPredictions: function() {
+	getPredictions: function(payload) {
 		var self = this;
 
-		this.urls.forEach(function(url, index) {
-			request({url: url, method: 'GET'}, function(error, response, body) {
+    var returned = 0;
+    var predictions = new Array();
+
+		payload.destinations.forEach(function(dest, index) {
+			request({url: dest.url, method: 'GET'}, function(error, response, body) {
 				
-				if(!error && response.statusCode == 200){
+        var prediction = new Object({
+          config: dest.config
+        });
 
-					var data = JSON.parse(body);
+        if(!error && response.statusCode == 200){
 
-          var prediction = new Object({
-            index: index,
-          });
+          var data = JSON.parse(body);
 
-          var routeList = new Array();
-          for (var i = 0; i < data.routes.length; i++) {
-            var r = data.routes[i];
-            var routeObj = new Object({
-              summary: r.summary,
-              time: r.legs[0].duration.value
-            });
 
-            if (r.legs[0].duration_in_traffic) {
-              routeObj.timeInTraffic = r.legs[0].duration_in_traffic.value;
-            }
-            if (self.config.destinations[index].mode && self.config.destinations[index].mode == 'transit') {
-              var transitInfo = new Array();
-              var gotFirstTransitLeg = false;
-              for (var j = 0; j < r.legs[0].steps.length; j++) {
-                var s = r.legs[0].steps[j];
+          if (data.error_message) {
+            console.log("MMM-MyCommute: " + data.error_message);
+            prediction.error = true;
+          } else {
+  
+            var routeList = new Array();
+            for (var i = 0; i < data.routes.length; i++) {
+              var r = data.routes[i];
+              var routeObj = new Object({
+                summary: r.summary,
+                time: r.legs[0].duration.value
+              });
 
-                if (s.transit_details) {
-                  var arrivalTime = '';
-                  if (!gotFirstTransitLeg && self.config.destinations[index].showNextVehicleDeparture) {
-                    gotFirstTransitLeg = true;
-                    arrivalTime = ' <span class="transit-arrival-time">(next at ' + s.transit_details.departure_time.text + ')</span>';
-                  }
-                  transitInfo.push({routeLabel: s.transit_details.line.short_name + arrivalTime, vehicle: s.transit_details.line.vehicle.type});
-                }
-                routeObj.transitInfo = transitInfo;
+              if (r.legs[0].duration_in_traffic) {
+                routeObj.timeInTraffic = r.legs[0].duration_in_traffic.value;
               }
+              if (dest.config.mode && dest.config.mode == 'transit') {
+                var transitInfo = new Array();
+                var gotFirstTransitLeg = false;
+                for (var j = 0; j < r.legs[0].steps.length; j++) {
+                  var s = r.legs[0].steps[j];
+
+                  if (s.transit_details) {
+                    var arrivalTime = '';
+                    if (!gotFirstTransitLeg && dest.config.showNextVehicleDeparture) {
+                      gotFirstTransitLeg = true;
+                      arrivalTime = ' <span class="transit-arrival-time">(next at ' + s.transit_details.departure_time.text + ')</span>';
+                    }
+                    transitInfo.push({routeLabel: s.transit_details.line.short_name + arrivalTime, vehicle: s.transit_details.line.vehicle.type});
+                  }
+                  routeObj.transitInfo = transitInfo;
+                }
+              }
+              routeList.push(routeObj);
             }
-            routeList.push(routeObj);
+            prediction.routes = routeList;
+            
           }
-          prediction.routes = routeList;
 
+        } else {
+          console.log( "Error getting traffic prediction: " + response.statusCode );
+          prediction.error = true;
 
-          self.sendSocketNotification('GOOGLE_TRAFFIC_RESPONSE', prediction);
+        }
 
-				}
-				else{
-					console.log( "Error getting traffic prediction: " + response.statusCode );
-				}
-			});
-		});
+        predictions[index] = prediction;
+        returned++;
+
+        if (returned == payload.destinations.length) {          
+          self.sendSocketNotification('GOOGLE_TRAFFIC_RESPONSE' + payload.unique, predictions);
+        };
+
+      });
+    });
 	}
 	
 });

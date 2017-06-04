@@ -17,8 +17,6 @@ Module.register('MMM-MyCommute', {
 
   defaults: {
     apikey: '',
-    showHeader: true,
-    headerText: 'My Commute',
     origin: '65 Front St W, Toronto, ON M5J 1E6',
     startTime: '00:00',
     endTime: '23:59',
@@ -67,6 +65,13 @@ Module.register('MMM-MyCommute', {
     return ["MMM-MyCommute.css", "font-awesome.css"];
   },
 
+  travelModes: [
+    'driving',
+    'walking',
+    'bicycling',
+    'transit'
+  ],
+
   // Icons to use for each transportation mode
   symbols: {
     'driving':          'car',
@@ -93,14 +98,116 @@ Module.register('MMM-MyCommute', {
     'other':            'streetcar'
   },  
 
+  POLL_FREQUENCY : 10 * 60 * 1000, //poll every 10 minutes
+
   start: function() {
 
     Log.info('Starting module: ' + this.name);
+    this.UNIQUE_STRING =  Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5);
 
     this.predictions = new Array();
-    this.sendSocketNotification("GOOGLE_TRAFFIC_GET", this.config);
+    this.loading = true;
+    this.inWindow = true;
+    this.isHidden = false;
+
+    //start data poll
+    this.getData();
+    var self = this;
+    setInterval(function() {
+      self.getData()
+    }, this.POLL_FREQUENCY);
       
   },
+
+  getData: function() {
+
+    //only poll if in window
+    var now = moment();
+    var startTimeSplit = this.config.startTime.split(":");
+    var endTimeSplit = this.config.endTime.split(":");
+    var startTime = moment().hour(startTimeSplit[0]).minute(startTimeSplit[1]);
+    var endTime = moment().hour(endTimeSplit[0]).minute(endTimeSplit[1]);
+
+    if ( now.isSameOrAfter(startTime) && now.isSameOrBefore(endTime) ) {    
+      //build URLs
+      var destinations = new Array();
+      for(var i = 0; i < this.config.destinations.length; i++) {
+        var url = 'https://maps.googleapis.com/maps/api/directions/json' + this.getParams(this.config.destinations[i]);
+        destinations.push({ url:url, config: this.config.destinations[i]});
+
+        // console.log(url);
+      }
+      this.inWindow = true;
+
+      this.sendSocketNotification("GOOGLE_TRAFFIC_GET", {destinations: destinations, unique: this.UNIQUE_STRING});
+    } else {
+
+      this.hide(1000);
+      this.inWindow = false;
+      this.isHidden = true;
+    }
+
+  },
+
+  getParams: function(dest) {
+
+    var params = '?';
+    params += 'origin=' + encodeURIComponent(this.config.origin);
+    params += '&destination=' + encodeURIComponent(dest.destination);
+    params += '&key=' + this.config.apikey;
+
+    //travel mode
+    var mode = 'driving';
+    if (dest.mode && this.travelModes.indexOf(dest.mode) != -1) {
+      mode = dest.mode;
+    } 
+    params += '&mode=' + mode;
+
+    //transit mode if travelMode = 'transit'
+    if (mode == 'transit' && dest.transitMode) {
+      var tModes = dest.transitMode.split("|");
+      var sanitizedTransitModes = '';
+      for (var i = 0; i < tModes.length; i++) {
+        if (this.transitModes.indexOf(tModes[i]) != -1) {
+          sanitizedTransitModes += (sanitizedTransitModes == '' ? tModes[i] : "|" + tModes[i]);
+        }
+      }
+      if (sanitizedTransitModes.length > 0) {
+        params += '&transit_mode=' + sanitizedTransitModes;
+      }
+    } 
+    if (dest.alternatives == true) {
+      params += '&alternatives=true';
+    }
+
+    if (dest.waypoints) {
+      var waypoints = dest.waypoints.split("|");
+      for (var i = 0; i < waypoints.length; i++) {
+        waypoints[i] = "via:" + encodeURIComponent(waypoints[i]);
+      }
+      params += '&waypoints=' + waypoints.join("|");
+    } 
+
+    //avoid
+    if (dest.avoid) {
+      var a = dest.avoid.split("|");
+      var sanitizedAvoidOptions = '';
+      for (var i = 0; i < a.length; i++) {
+        if (this.avoidOptions.indexOf(a[i]) != -1) {
+          sanitizedAvoidOptions += (sanitizedAvoidOptions == '' ? a[i] : "|" + a[i]);
+        }
+      }
+      if (sanitizedAvoidOptions.length > 0) {
+        params += '&avoid=' + sanitizedAvoidOptions;
+      }
+
+    }
+
+    params += '&departure_time=now'; //needed for time based on traffic conditions
+
+    return params;
+
+  },  
 
   svgIconFactory: function(glyph) {
 
@@ -176,140 +283,149 @@ Module.register('MMM-MyCommute', {
 
   },
 
+
   getDom: function() {
-
-    var now = moment();
-    var startTimeSplit = this.config.startTime.split(":");
-    var endTimeSplit = this.config.endTime.split(":");
-    var startTime = moment().hour(startTimeSplit[0]).minute(startTimeSplit[1]);
-    var endTime = moment().hour(endTimeSplit[0]).minute(endTimeSplit[1]);
-
 
     var wrapper = document.createElement("div");
     
-    /*
-      Only show the module between the config's startTime and endTime parameters
-    */
-    if( now.isSameOrAfter(startTime) && now.isSameOrBefore(endTime) ){
+    if (this.loading) {
+      var loading = document.createElement("div");
+        loading.innerHTML = this.translate("LOADING");
+        loading.className = "dimmed light small";
+        wrapper.appendChild(loading);
+      return wrapper
+    }
 
-      if (this.config.showHeader) {      
-        var header = document.createElement("header");
-        header.classList.add("module-header");
-        header.innerHTML = this.config.headerText;
-        wrapper.appendChild(header);
-      } 
+    for (var i = 0; i < this.predictions.length; i++) {
 
-      for (var i = 0; i < this.config.destinations.length; i++) {
+      var p = this.predictions[i];
 
-        var d = this.config.destinations[i];
+      var row = document.createElement("div");
+      row.classList.add("row");
 
-        var row = document.createElement("div");
-        row.classList.add("row");
+      var destination = document.createElement("span");
+      destination.className = "destination-label bright";
+      destination.innerHTML = p.config.label;
+      row.appendChild(destination);
 
-        var destination = document.createElement("span");
-        destination.className = "destination-label bright";
-        destination.innerHTML = d.label;
-        row.appendChild(destination);
-
-        var icon = document.createElement("span");
-        icon.className = "transit-mode bright";
-        var symbolIcon = 'car';
-        if (this.config.destinations[i].color) {
-          icon.setAttribute("style", "color:" + this.config.destinations[i].color);
-        }
-
-        if (d.mode && this.symbols[d.mode]) {
-          symbolIcon = this.symbols[d.mode];
-        }
-
-
-        //data yet?
-        if (this.predictions[i]) {
-
-          //different rendering for single route vs multiple
-          if (this.predictions[i].routes.length == 1 || !this.config.showSummary) {
-
-            var r = this.predictions[i].routes[0];
-
-            row.appendChild( this.formatTime(r.time, r.timeInTraffic) );
-
-            //summary?
-            if (this.config.showSummary) {
-              var summary = document.createElement("div");
-                summary.classList.add("route-summary");
-
-              if (r.transitInfo) {
-
-                symbolIcon = this.getTransitIcon(d,r);
-                this.buildTransitSummary(r.transitInfo, summary); 
-
-              } else {
-                summary.innerHTML = r.summary;
-              }
-              row.appendChild(summary);
-            }
-
-
-          } else {
-
-            row.classList.add("with-multiple-routes");
-
-            for (var j = 0; j < this.predictions[i].routes.length; j++) {
-              var routeSummaryOuter = document.createElement("div");
-              routeSummaryOuter.classList.add("route-summary-outer");
-
-              var r = this.predictions[i].routes[j];
-
-              routeSummaryOuter.appendChild( this.formatTime(r.time, r.timeInTraffic) );
-
-              var summary = document.createElement("div");
-                summary.classList.add("route-summary");
-
-              if (r.transitInfo) {
-                symbolIcon = this.getTransitIcon(d,r);
-                this.buildTransitSummary(r.transitInfo, summary); 
-
-              } else {
-                summary.innerHTML = r.summary;
-              }
-              routeSummaryOuter.appendChild(summary);
-              row.appendChild(routeSummaryOuter);
-
-            } 
-
-          }
-
-
-
-        } else { //show loading loading icon
-          var loadingIcon = document.createElement("i");
-          loadingIcon.classList.add("loading-icon", "fa", "fa-spin", "fa-circle-o-notch");
-          row.appendChild(loadingIcon);
-        }
-        
-
-        var svg = this.svgIconFactory(symbolIcon);
-        icon.appendChild(svg);
-        row.appendChild(icon);
-        
-        
-
-        wrapper.appendChild(row);
+      var icon = document.createElement("span");
+      icon.className = "transit-mode bright";
+      var symbolIcon = 'car';
+      if (this.config.destinations[i].color) {
+        icon.setAttribute("style", "color:" + p.config.color);
       }
 
+      if (p.config.mode && this.symbols[p.config.mode]) {
+        symbolIcon = this.symbols[p.config.mode];
+      }
+
+      //different rendering for single route vs multiple
+      if (p.error) {
+
+        //no routes available.  display an error instead.
+        var errorTxt = document.createElement("span");
+        errorTxt.classList.add("route-error");
+        errorTxt.innerHTML = "Error";
+        row.appendChild(errorTxt);
+
+      } else if (p.routes.length == 1 || !this.config.showSummary) {
+
+        var r = p.routes[0];
+
+        row.appendChild( this.formatTime(r.time, r.timeInTraffic) );
+
+        //summary?
+        if (this.config.showSummary) {
+          var summary = document.createElement("div");
+            summary.classList.add("route-summary");
+
+          if (r.transitInfo) {
+
+            symbolIcon = this.getTransitIcon(p.config,r);
+            this.buildTransitSummary(r.transitInfo, summary); 
+
+          } else {
+            summary.innerHTML = r.summary;
+          }
+          row.appendChild(summary);
+        }
+
+
+      } else {
+
+        row.classList.add("with-multiple-routes");
+
+        for (var j = 0; j < p.routes.length; j++) {
+          var routeSummaryOuter = document.createElement("div");
+          routeSummaryOuter.classList.add("route-summary-outer");
+
+          var r = p.routes[j];
+
+          routeSummaryOuter.appendChild( this.formatTime(r.time, r.timeInTraffic) );
+
+          var summary = document.createElement("div");
+            summary.classList.add("route-summary");
+
+          if (r.transitInfo) {
+            symbolIcon = this.getTransitIcon(p.config,r);
+            this.buildTransitSummary(r.transitInfo, summary); 
+
+          } else {
+            summary.innerHTML = r.summary;
+          }
+          routeSummaryOuter.appendChild(summary);
+          row.appendChild(routeSummaryOuter);
+
+        } 
+
+      }
+
+
+
+
+      
+
+      var svg = this.svgIconFactory(symbolIcon);
+      icon.appendChild(svg);
+      row.appendChild(icon);
+      
+      
+
+      wrapper.appendChild(row);
     }
+
 
     return wrapper;
   },
   
   socketNotificationReceived: function(notification, payload) {
-    if ( notification === 'GOOGLE_TRAFFIC_RESPONSE' ) {
+    if ( notification === 'GOOGLE_TRAFFIC_RESPONSE' + this.UNIQUE_STRING ) {
 
-      //insert response into correct index
-      this.predictions[payload.index] = payload;
+      this.predictions = payload;
 
-      //update dom
-      this.updateDom();
+      if (this.loading) {
+        this.loading = false;
+        if (this.isHidden) {
+          this.updateDom();
+          this.show(1000);
+        } else {
+          this.updateDom(1000);
+        }
+      } else {
+        this.updateDom();
+        this.show(1000);        
+      }
+      this.isHidden = false;
+    }
+
+
+  },
+
+  notificationReceived: function(notification, payload, sender) {
+    if ( notification == 'DOM_OBJECTS_CREATED' && !this.inWindow) {
+      this.hide();
+      this.isHidden = true;
     }
   }
+
 });

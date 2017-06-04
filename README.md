@@ -25,14 +25,6 @@ https://github.com/domsen123/mrx-work-traffic
       <td><strong>REQUIRED</strong> API Key from Google<br><br><strong>Type:</strong> <code>string</code></td>
     </tr>
     <tr>
-      <td><code>showHeader</code></td>
-      <td>Whether to show the module header<br><br><strong>Type:</strong> <code>boolean</code><br>Defaults to <code>true</code></td>
-    </tr>
-    <tr>
-      <td><code>headerText<code></td>
-      <td>Text to show in the header<br><br><strong>Type:</strong> <code>string</code><br>Defaults to <code>My Commute</code></td>
-    </tr>
-    <tr>
       <td><code>origin</code></td>
       <td><strong>REQUIRED</strong> The starting point for your commute.  Usually this is your home address.<br><br><strong>Type:</strong> <code>string</code><br>This is as you would see it Google Maps.  Example:  <code>65 Front St W, Toronto, ON M5J 1E6</code></td>
     </tr>
