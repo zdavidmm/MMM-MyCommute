@@ -11,29 +11,6 @@ var moment = require('moment');
  
 module.exports = NodeHelper.create({
 
-  travelModes: [
-    'driving',
-    'walking',
-    'bicycling',
-    'transit'
-  ],
-
-  transitModes: [
-    'bus',
-    'subway',
-    'train',
-    'tram',
-    'rail'
-  ],
-
-  avoidOptions: [
-    'tolls',
-    'highways',
-    'ferries',
-    'indoor'
-  ],
-
-
   start: function() {
     console.log("====================== Starting node_helper for module [" + this.name + "]");
   },

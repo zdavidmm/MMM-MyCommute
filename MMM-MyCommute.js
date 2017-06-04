@@ -72,6 +72,24 @@ Module.register('MMM-MyCommute', {
     'transit'
   ],
 
+  transitModes: [
+    'bus',
+    'subway',
+    'train',
+    'tram',
+    'rail'
+  ],
+
+
+  avoidOptions: [
+    'tolls',
+    'highways',
+    'ferries',
+    'indoor'
+  ],
+
+
+
   // Icons to use for each transportation mode
   symbols: {
     'driving':          'car',
