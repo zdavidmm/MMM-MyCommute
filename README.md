@@ -14,6 +14,36 @@ https://github.com/domsen123/mrx-work-traffic
 2. Enter the `MMM-MyCommute` directory and execute `npm install`.
 3. Go to https://developers.google.com/maps/documentation/javascript/get-api-key and get an API key.
 
+# NOTE To those updating from previous verions
+
+You now configure the header in the standard way instead using the `headerText` and `showHeader` parameters. So if your config looked like this before:
+
+```
+    {
+      module: 'MMM-MyCommute',
+      position: 'top_left',
+      classes: 'default everyone', 
+      config: {
+        showHeader: true,
+        headerText: 'Traffic',
+        ...
+      }
+    }
+```
+change it to this:
+```
+   {
+      module: 'MMM-MyCommute',
+      position: 'top_left',
+      header: 'Traffic',
+      classes: 'default everyone', 
+      config: {
+        ...
+      }
+    }
+```
+If you don’t want a header, then just omit it.
+
 # Config
 <table>
   <thead>
