@@ -67,7 +67,7 @@ If you don’t want a header, then just omit it.
     </tr>
     <tr>
       <td><code>endTime</code></td>
-      <td>The end time of the window during which this module wil be visible.<br><br><strong>Type:</strong> <code>array</code><br>Must be in 24-hour time format.  Defaults to <code>23:59</code> (i.e.: one minute before midnight).</td>
+      <td>The end time of the window during which this module wil be visible.<br><br><strong>Type:</strong> <code>string</code><br>Must be in 24-hour time format.  Defaults to <code>23:59</code> (i.e.: one minute before midnight).</td>
     </tr>
     <tr>
       <td><code>hideDays</code></td>
@@ -148,7 +148,7 @@ Each object in the `destinations` array can have the following parameters:
     </tr>
     <tr>
       <td><code>endTime</code></td>
-      <td>The end time of the window during which this destination wil be visible.<br><br><strong>Type:</strong> <code>array</code><br>Must be in 24-hour time format.  Defaults to <code>23:59</code> (i.e.: one minute before midnight).</td>
+      <td>The end time of the window during which this destination wil be visible.<br><br><strong>Type:</strong> <code>string</code><br>Must be in 24-hour time format.  Defaults to <code>23:59</code> (i.e.: one minute before midnight).</td>
     </tr>
     <tr>
       <td><code>hideDays</code></td>
