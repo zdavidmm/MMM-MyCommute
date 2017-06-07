@@ -95,7 +95,7 @@ module.exports = NodeHelper.create({
         returned++;
 
         if (returned == payload.destinations.length) {          
-          self.sendSocketNotification('GOOGLE_TRAFFIC_RESPONSE' + payload.unique, predictions);
+          self.sendSocketNotification('GOOGLE_TRAFFIC_RESPONSE' + payload.instanceId, predictions);
         };
 
       });

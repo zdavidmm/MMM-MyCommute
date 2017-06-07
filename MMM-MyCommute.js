@@ -20,10 +20,7 @@ Module.register('MMM-MyCommute', {
     origin: '65 Front St W, Toronto, ON M5J 1E6',
     startTime: '00:00',
     endTime: '23:59',
-    showSummary: true,
-    poorTimeThreshold: 1.3,
-    moderateTimeThreshold: 1.1,
-    colorCodeTravelTime: true,
+    hideDays: [],
     showSummary: true,
     colorCodeTravelTime: true,
     moderateTimeThreshold: 1.1,
@@ -116,12 +113,20 @@ Module.register('MMM-MyCommute', {
     'other':            'streetcar'
   },  
 
+  /*
+    Poll Frequency
+
+    Be careful with this!  We're using Google's free API
+    which has a maximum of 2400 requests per day.  Each
+    entry in the destinations list requires its own request
+    so if you set this to be too frequent, it's pretty
+    easy to blow your request quota.
+  */
   POLL_FREQUENCY : 10 * 60 * 1000, //poll every 10 minutes
 
   start: function() {
 
     Log.info('Starting module: ' + this.name);
-    this.UNIQUE_STRING =  Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5);
 
     this.predictions = new Array();
     this.loading = true;
@@ -137,30 +142,75 @@ Module.register('MMM-MyCommute', {
       
   },
 
-  getData: function() {
+  /*
+    function isInWindow()
 
-    //only poll if in window
+    @param start
+      STRING display start time in 24 hour format e.g.: 06:00
+
+    @param end
+      STRING display end time in 24 hour format e.g.: 10:00
+
+    @param hideDays
+      ARRAY of numbers representing days of the week during which
+      this tested item shall not be displayed.  Sun = 0, Sat = 6
+      e.g.: [3,4] to hide the module on Wed & Thurs
+
+    returns TRUE if current time is within start and end AND
+    today is not in the list of days to hide.
+
+  */
+  isInWindow: function(start, end, hideDays) {
+
     var now = moment();
-    var startTimeSplit = this.config.startTime.split(":");
-    var endTimeSplit = this.config.endTime.split(":");
+    var startTimeSplit = start.split(":");
+    var endTimeSplit = end.split(":");
     var startTime = moment().hour(startTimeSplit[0]).minute(startTimeSplit[1]);
     var endTime = moment().hour(endTimeSplit[0]).minute(endTimeSplit[1]);
 
-    if ( now.isSameOrAfter(startTime) && now.isSameOrBefore(endTime) ) {    
+    if ( now.isBefore(startTime) || now.isAfter(endTime) ) {
+      return false;
+    } else if ( hideDays.indexOf( now.day() ) != -1) {
+      return false;
+    }
+
+    return true;
+  },
+
+  getData: function() {
+
+    //only poll if in window
+    if ( this.isInWindow( this.config.startTime, this.config.endTime, this.config.hideDays ) ) {
       //build URLs
       var destinations = new Array();
       for(var i = 0; i < this.config.destinations.length; i++) {
-        var url = 'https://maps.googleapis.com/maps/api/directions/json' + this.getParams(this.config.destinations[i]);
-        destinations.push({ url:url, config: this.config.destinations[i]});
 
-        // console.log(url);
+        var d = this.config.destinations[i];
+
+        var destStartTime = d.startTime || '00:00';
+        var destEndTime = d.endTime || '23:59';
+        var destHideDays = d.hideDays || [];
+
+        if ( this.isInWindow( destStartTime, destEndTime, destHideDays ) ) {
+          var url = 'https://maps.googleapis.com/maps/api/directions/json' + this.getParams(d);
+          destinations.push({ url:url, config: d});
+          // console.log(url);          
+        }
+
       }
       this.inWindow = true;
 
-      this.sendSocketNotification("GOOGLE_TRAFFIC_GET", {destinations: destinations, unique: this.UNIQUE_STRING});
+      if (destinations.length > 0) {        
+        this.sendSocketNotification("GOOGLE_TRAFFIC_GET", {destinations: destinations, instanceId: this.identifier});
+      } else {
+        this.hide(1000, {lockString: this.identifier});
+        this.inWindow = false;
+        this.isHidden = true;
+      }
+
     } else {
 
-      this.hide(1000);
+      this.hide(1000, {lockString: this.identifier});
       this.inWindow = false;
       this.isHidden = true;
     }
@@ -417,7 +467,7 @@ Module.register('MMM-MyCommute', {
   },
   
   socketNotificationReceived: function(notification, payload) {
-    if ( notification === 'GOOGLE_TRAFFIC_RESPONSE' + this.UNIQUE_STRING ) {
+    if ( notification === 'GOOGLE_TRAFFIC_RESPONSE' + this.identifier ) {
 
       this.predictions = payload;
 
@@ -425,13 +475,13 @@ Module.register('MMM-MyCommute', {
         this.loading = false;
         if (this.isHidden) {
           this.updateDom();
-          this.show(1000);
+          this.show(1000, {lockString: this.identifier});
         } else {
           this.updateDom(1000);
         }
       } else {
         this.updateDom();
-        this.show(1000);        
+        this.show(1000, {lockString: this.identifier});        
       }
       this.isHidden = false;
     }
@@ -441,7 +491,7 @@ Module.register('MMM-MyCommute', {
 
   notificationReceived: function(notification, payload, sender) {
     if ( notification == 'DOM_OBJECTS_CREATED' && !this.inWindow) {
-      this.hide();
+      this.hide(0, {lockString: this.identifier});
       this.isHidden = true;
     }
   }

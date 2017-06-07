@@ -9,7 +9,8 @@ https://github.com/domsen123/mrx-work-traffic
 # Installation
 1. Navigate into your MagicMirror `modules` folder and execute<br>
 `git clone https://github.com/jclarke0000/MMM-MyCommute.git`.
-2. Go to https://developers.google.com/maps/documentation/javascript/get-api-key and get an API key.
+2. Enter the `MMM-MyCommute` directory and execute `npm install`.
+3. Go to https://developers.google.com/maps/documentation/javascript/get-api-key and get an API key.
 
 # Config
 <table>
@@ -34,7 +35,11 @@ https://github.com/domsen123/mrx-work-traffic
     </tr>
     <tr>
       <td><code>endTime</code></td>
-      <td>The end time of the window during which this module wil be visible.<br><br><strong>Type:</strong> <code>string</code><br>Must be in 24-hour time format.  Defaults to <code>23:59</code> (i.e.: one minute before midnight)</td>
+      <td>The end time of the window during which this module wil be visible.<br><br><strong>Type:</strong> <code>array</code><br>Must be in 24-hour time format.  Defaults to <code>23:59</code> (i.e.: one minute before midnight).</td>
+    </tr>
+    <tr>
+      <td><code>hideDays</code></td>
+      <td>A list of numbers representing days of the week to hide the module.<br><br><strong>Type:</strong> <code>string</code><br>Valid numbers are 0 through 6, 0 = Sunday, 6 = Saturday.<br>e.g.: <code>[0,6]</code> hides the module on weekends.</td>
     </tr>
     <tr>
       <td><code>showSummary</code></td>
@@ -59,7 +64,7 @@ https://github.com/domsen123/mrx-work-traffic
   </tbody>
 </table>
 
-Each object in the `destinations` array has the following parameters:
+Each object in the `destinations` array can have the following parameters:
 
 <table>
   <thead>
@@ -105,9 +110,21 @@ Each object in the `destinations` array has the following parameters:
       <td><code>color</code></td>
       <td>If specified, the colour for the icon in hexadecimal format (e.g.: <code>"#82BAE5"</code>)<br><br><strong>Type:</strong> <code>string</code><br>Defaults to white.</td>
     </tr>
+    <tr>
+      <td><code>startTime</code></td>
+      <td>The start time of the window during which this destination wil be visible.<br><br><strong>Type:</strong> <code>string</code><br>Must be in 24-hour time format.  Defaults to <code>00:00</code> (i.e.: midnight)</td>
+    </tr>
+    <tr>
+      <td><code>endTime</code></td>
+      <td>The end time of the window during which this destination wil be visible.<br><br><strong>Type:</strong> <code>array</code><br>Must be in 24-hour time format.  Defaults to <code>23:59</code> (i.e.: one minute before midnight).</td>
+    </tr>
+    <tr>
+      <td><code>hideDays</code></td>
+      <td>A list of numbers representing days of the week to hide the destination.<br><br><strong>Type:</strong> <code>string</code><br>Valid numbers are 0 through 6, 0 = Sunday, 6 = Saturday.<br>e.g.: <code>[0,6]</code> hides the destination on weekends.</td>
+    </tr>
+
   </tbody>
 </table>
-
 
 
 Here is an example of an entry in `config.js`
@@ -122,6 +139,7 @@ Here is an example of an entry in `config.js`
     origin: '65 Front St W, Toronto, ON M5J 1E6',
     startTime: '00:00',
     endTime: '23:59',
+    hideDays: [0,6],
     destinations: [
       {
         destination: '14 Duncan St Toronto, ON M5H 3G8',
@@ -151,7 +169,9 @@ Here is an example of an entry in `config.js`
 
 
 ## Dependencies
-- [request](https://www.npmjs.com/package/request) (Likely already installed, installed via `npm install request`)
+Installed during installation
+- [request](https://www.npmjs.com/package/request)
+- [moment](https://www.npmjs.com/package/moment)
 
 ## Special Thanks
 - [Michael Teeuw](https://github.com/MichMich) for creating the awesome [MagicMirror2](https://github.com/MichMich/MagicMirror/tree/develop) project that made this module possible.
