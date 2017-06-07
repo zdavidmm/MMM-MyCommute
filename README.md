@@ -71,7 +71,7 @@ If you don’t want a header, then just omit it.
     </tr>
     <tr>
       <td><code>hideDays</code></td>
-      <td>A list of numbers representing days of the week to hide the module.<br><br><strong>Type:</strong> <code>string</code><br>Valid numbers are 0 through 6, 0 = Sunday, 6 = Saturday.<br>e.g.: <code>[0,6]</code> hides the module on weekends.</td>
+      <td>A list of numbers representing days of the week to hide the module.<br><br><strong>Type:</strong> <code>array</code><br>Valid numbers are 0 through 6, 0 = Sunday, 6 = Saturday.<br>e.g.: <code>[0,6]</code> hides the module on weekends.</td>
     </tr>
     <tr>
       <td><code>showSummary</code></td>
@@ -152,7 +152,7 @@ Each object in the `destinations` array can have the following parameters:
     </tr>
     <tr>
       <td><code>hideDays</code></td>
-      <td>A list of numbers representing days of the week to hide the destination.<br><br><strong>Type:</strong> <code>string</code><br>Valid numbers are 0 through 6, 0 = Sunday, 6 = Saturday.<br>e.g.: <code>[0,6]</code> hides the destination on weekends.</td>
+      <td>A list of numbers representing days of the week to hide the destination.<br><br><strong>Type:</strong> <code>array</code><br>Valid numbers are 0 through 6, 0 = Sunday, 6 = Saturday.<br>e.g.: <code>[0,6]</code> hides the destination on weekends.</td>
     </tr>
 
   </tbody>
