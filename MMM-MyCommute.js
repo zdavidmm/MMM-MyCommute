@@ -25,6 +25,7 @@ Module.register('MMM-MyCommute', {
     colorCodeTravelTime: true,
     moderateTimeThreshold: 1.1,
     poorTimeThreshold: 1.3,
+    nextTransitVehicleDepartureFormat: "[next at] h:mm a",
     destinations: [
       {
         destination: '40 Bay St, Toronto, ON M5J 2X2',
@@ -194,7 +195,7 @@ Module.register('MMM-MyCommute', {
         if ( this.isInWindow( destStartTime, destEndTime, destHideDays ) ) {
           var url = 'https://maps.googleapis.com/maps/api/directions/json' + this.getParams(d);
           destinations.push({ url:url, config: d});
-          // console.log(url);          
+          console.log(url);          
         }
 
       }
@@ -344,6 +345,10 @@ Module.register('MMM-MyCommute', {
 
       var routeNumber = document.createElement("span");
         routeNumber.innerHTML = transitInfo[i].routeLabel;
+
+      if (transitInfo[i].arrivalTime) {
+        routeNumber.innerHTML = routeNumber.innerHTML + " (" + moment(transitInfo[i].arrivalTime).format(this.config.nextTransitVehicleDepartureFormat) + ")";
+      }
 
       transitLeg.appendChild(routeNumber);
       summaryContainer.appendChild(transitLeg);

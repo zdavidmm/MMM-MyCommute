@@ -90,6 +90,9 @@ If you don’t want a header, then just omit it.
       <td>The amount of variance between time in traffic vs absolute fastest time after which the time is coloured red<br><br><strong>Type:</strong> <code>float</code><br>Defaults to <code>1.3</code> (i.e.: 30% longer than fastest time)</td>
     </tr>
     <tr>
+      <td><code>nextTransitVehicleDepartureFormat</code></td>
+      <td>For any transit destinations where <code>showNextVehicleDeparture</code> is true, this dictates how to format the next arrival time.<br><br><strong>Type:</strong> <code>string</code><br>Defaults to <code>[next at] h:mm a</code>.</td>
+    </tr>    <tr>
       <td><code>destinations</code></td>
       <td>An array of destinations to which you would like to see commute times.<br><br><strong>Type:</strong> <code>array</code> of objects.<br>See below for destination options.</td>
     </tr>
