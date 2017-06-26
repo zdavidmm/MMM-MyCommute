@@ -54,7 +54,7 @@ If you don’t want a header, then just omit it.
   </thead>
   <tbody>
     <tr>
-      <td><code>apiKey</code></td>
+      <td><code>apikey</code></td>
       <td><strong>REQUIRED</strong> API Key from Google<br><br><strong>Type:</strong> <code>string</code></td>
     </tr>
     <tr>
