@@ -168,8 +168,6 @@ Here is an example of an entry in `config.js`
   module: 'MMM-MyCommute',
   position: 'top_left',
   config: {
-    showHeader: true,
-    headerText: 'Traffic',
     apikey: 'API_KEY_FROM_GOOGLE',
     origin: '65 Front St W, Toronto, ON M5J 1E6',
     startTime: '00:00',
