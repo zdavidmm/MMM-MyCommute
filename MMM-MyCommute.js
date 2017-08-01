@@ -26,6 +26,7 @@ Module.register('MMM-MyCommute', {
     moderateTimeThreshold: 1.1,
     poorTimeThreshold: 1.3,
     nextTransitVehicleDepartureFormat: "[next at] h:mm a",
+    travelTimeFormat: "m [min]",
     destinations: [
       {
         destination: '40 Bay St, Toronto, ON M5J 2X2',
@@ -55,7 +56,7 @@ Module.register('MMM-MyCommute', {
 
   // Define required scripts.
   getScripts: function() {
-    return ["moment.js"];
+    return ["moment.js", this.file("node_modules/moment-duration-format/lib/moment-duration-format.js")];
   },
   
   // Define required styles.
@@ -294,7 +295,7 @@ Module.register('MMM-MyCommute', {
     var timeEl = document.createElement("span");
     timeEl.classList.add("travel-time");
     if (timeInTraffic != null) {
-      timeEl.innerHTML = Math.floor(Number(timeInTraffic) / 60) + " min";
+      timeEl.innerHTML = moment.duration(Number(timeInTraffic), "seconds").format(this.config.travelTimeFormat);
 
       var variance = timeInTraffic / time;
       if (this.config.colorCodeTravelTime) {            
@@ -308,7 +309,7 @@ Module.register('MMM-MyCommute', {
       }
 
     } else {
-      timeEl.innerHTML = Math.floor(Number(time) / 60) + " min";
+      timeEl.innerHTML = moment.duration(Number(time), "seconds").format(this.config.travelTimeFormat);
       timeEl.classList.add("status-good");
     }
 

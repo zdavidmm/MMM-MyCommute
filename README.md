@@ -82,6 +82,10 @@ If you don’t want a header, then just omit it.
       <td>Whether to colour-code the travel time red, yellow, or green based on traffic.<br><br><strong>Type:</strong> <code>boolean</code><br>Defaults to <code>true</code></td>
     </tr>
     <tr>
+      <td><code>travelTimeFormat</code></td>
+      <td>How the module should format your total travel time.<br><br><strong>Type:</strong> <code>string</code><br>Defaults to <code>m [min]</code> (e.g. 86 min).  Some other examples are <code>h[h] m[m]</code> (e.g.: 1h 26min), <code>h:mm</code> (e.g. 1:26).  This uses the <code>moment-duration-format</code> plugin's templating feature.  https://github.com/jsmreese/moment-duration-format#template</td>
+    </tr>
+    <tr>
       <td><code>moderateTimeThreshold</code></td>
       <td>The amount of variance between time in traffic vs absolute fastest time after which the time is coloured yellow<br><br><strong>Type:</strong> <code>float</code><br>Defaults to <code>1.1</code> (i.e.: 10% longer than fastest time)</td>
     </tr>
