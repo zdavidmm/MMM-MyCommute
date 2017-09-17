@@ -103,7 +103,7 @@ If you don’t want a header, then just omit it.
     </tr>
     <tr>
       <td><code>pollFrequency</code></td>
-      <td>How frequently, in milliseconds, to poll for traffic predictions.  <strong>BE CAREFUL WITH THIS!</strong>  We're using Google's free API which has a maximum of 2400 requests per day.  Each entry in the destinations list requires its own request so if you set this to be too frequent, it's pretty easy to blow your request quota.<br><br><strong>Type:</strong> <code>number</code>.<br>Defaults to <code>10 * 60 * 1000</code> (i.e.: 600000ms, or every 10 minutes)</td>
+      <td>How frequently, in milliseconds, to poll for traffic predictions.<br><strong>BE CAREFUL WITH THIS!</strong>  We're using Google's free API which has a maximum of 2400 requests per day.  Each entry in the destinations list requires its own request so if you set this to be too frequent, it's pretty easy to blow your request quota.<br><br><strong>Type:</strong> <code>number</code>.<br>Defaults to <code>10 * 60 * 1000</code> (i.e.: 600000ms, or every 10 minutes)</td>
     </tr>
     <tr>
       <td><code>destinations</code></td>
