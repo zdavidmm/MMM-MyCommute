@@ -100,7 +100,12 @@ If you don’t want a header, then just omit it.
     <tr>
       <td><code>nextTransitVehicleDepartureFormat</code></td>
       <td>For any transit destinations where <code>showNextVehicleDeparture</code> is true, this dictates how to format the next arrival time.<br><br><strong>Type:</strong> <code>string</code><br>Defaults to <code>[next at] h:mm a</code>.</td>
-    </tr>    <tr>
+    </tr>
+    <tr>
+      <td><code>pollFrequency</code></td>
+      <td>How frequently, in milliseconds, to poll for traffic predictions.  <strong>BE CAREFUL WITH THIS!</strong>  We're using Google's free API which has a maximum of 2400 requests per day.  Each entry in the destinations list requires its own request so if you set this to be too frequent, it's pretty easy to blow your request quota.<br><br><strong>Type:</strong> <code>number</code>.<br>Defaults to <code>10 * 60 * 1000</code> (i.e.: 600000ms, or every 10 minutes)</td>
+    </tr>
+    <tr>
       <td><code>destinations</code></td>
       <td>An array of destinations to which you would like to see commute times.<br><br><strong>Type:</strong> <code>array</code> of objects.<br>See below for destination options.</td>
     </tr>

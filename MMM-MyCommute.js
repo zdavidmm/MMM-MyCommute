@@ -28,6 +28,7 @@ Module.register('MMM-MyCommute', {
     nextTransitVehicleDepartureFormat: "[next at] h:mm a",
     travelTimeFormat: "m [min]",
     travelTimeFormatTrim: "left",
+    pollFrequency: 10 * 60 * 1000, //every ten minutes, in milliseconds
     destinations: [
       {
         destination: '40 Bay St, Toronto, ON M5J 2X2',
@@ -116,17 +117,6 @@ Module.register('MMM-MyCommute', {
     'other':            'streetcar'
   },  
 
-  /*
-    Poll Frequency
-
-    Be careful with this!  We're using Google's free API
-    which has a maximum of 2400 requests per day.  Each
-    entry in the destinations list requires its own request
-    so if you set this to be too frequent, it's pretty
-    easy to blow your request quota.
-  */
-  POLL_FREQUENCY : 10 * 60 * 1000, //poll every 10 minutes
-
   start: function() {
 
     Log.info('Starting module: ' + this.name);
@@ -140,8 +130,8 @@ Module.register('MMM-MyCommute', {
     this.getData();
     var self = this;
     setInterval(function() {
-      self.getData()
-    }, this.POLL_FREQUENCY);
+      self.getData();
+    }, this.config.pollFrequency);
       
   },
 
