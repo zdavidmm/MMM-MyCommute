@@ -27,6 +27,7 @@ Module.register('MMM-MyCommute', {
     poorTimeThreshold: 1.3,
     nextTransitVehicleDepartureFormat: "[next at] h:mm a",
     travelTimeFormat: "m [min]",
+    travelTimeFormatTrim: "left",
     destinations: [
       {
         destination: '40 Bay St, Toronto, ON M5J 2X2',
@@ -295,7 +296,7 @@ Module.register('MMM-MyCommute', {
     var timeEl = document.createElement("span");
     timeEl.classList.add("travel-time");
     if (timeInTraffic != null) {
-      timeEl.innerHTML = moment.duration(Number(timeInTraffic), "seconds").format(this.config.travelTimeFormat);
+      timeEl.innerHTML = moment.duration(Number(timeInTraffic), "seconds").format(this.config.travelTimeFormat, {trim: this.config.travelTimeFormatTrim});
 
       var variance = timeInTraffic / time;
       if (this.config.colorCodeTravelTime) {            
@@ -309,7 +310,7 @@ Module.register('MMM-MyCommute', {
       }
 
     } else {
-      timeEl.innerHTML = moment.duration(Number(time), "seconds").format(this.config.travelTimeFormat);
+      timeEl.innerHTML = moment.duration(Number(time), "seconds").format(this.config.travelTimeFormat, {trim: this.config.travelTimeFormatTrim});
       timeEl.classList.add("status-good");
     }
 
