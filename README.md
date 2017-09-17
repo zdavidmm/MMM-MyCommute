@@ -87,7 +87,7 @@ If you don’t want a header, then just omit it.
     </tr>
     <tr>
       <td><code>travelTimeFormatTrim</code></td>
-      <td>How to handle time tokens that have no value.  For example, if you configure <code>travelTimeFormat</code> as <code>"hh:mm"</code> but the actual travel time is less than an hour, by default only the minute portion of the duration will be rendered.  Set <code>travelTimeFormatTrim</code> to <code>false</code> to preserve the <code>hh:</code> portion of the format (e.g.: <code>00:21</code>).  Valid options are <code>"left"</code>, <code>"right"</code> (e.g.: <code>2:00</code> renders as <code>2</code>), or <code>false</code> (e.g.: do not trim).<br><br><strong>Type:</strong> <code>String or `false`</code><br>Defaults to <code>"left"</code>.</td>
+      <td>How to handle time tokens that have no value.  For example, if you configure <code>travelTimeFormat</code> as <code>"hh:mm"</code> but the actual travel time is less than an hour, by default only the minute portion of the duration will be rendered.  Set <code>travelTimeFormatTrim</code> to <code>false</code> to preserve the <code>hh:</code> portion of the format (e.g.: <code>00:21</code>).  Valid options are <code>"left"</code>, <code>"right"</code> (e.g.: <code>2:00</code> renders as <code>2</code>), or <code>false</code> (e.g.: do not trim).<br><br><strong>Type:</strong> <code>String</code> or <code>false</code><br>Defaults to <code>"left"</code>.</td>
     </tr>
     <tr>
       <td><code>moderateTimeThreshold</code></td>
