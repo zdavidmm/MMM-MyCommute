@@ -45,7 +45,7 @@ module.exports = NodeHelper.create({
         },
         function (error, response, body) {
           console.log('Request URL: ' + dest.url);
-          console.log('Request Body: ' + JSON.stringify(dest.body));
+          // console.log('Request Body: ' + JSON.stringify(dest.body));
           if (error) {
             console.error('Request Error:', error);
           }
@@ -53,7 +53,8 @@ module.exports = NodeHelper.create({
             console.log('Response Status Code:', response.statusCode);
           }
           if (body) {
-            console.log('Response Body:', body);
+            // console.log('Response Body:', body);
+            console.log('Body exits');
           }
 
           const prediction = { config: dest.config };
