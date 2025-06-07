@@ -1,6 +1,21 @@
+
 const NodeHelper = require('node_helper');
 const request = require('request');
 const moment = require('moment');
+
+/**
+ * Normalizes the various duration formats returned by the Google Routes API.
+ * Accepts either a string like "123s" or an object { seconds: 123, nanos: 0 }.
+ * Returns an integer number of seconds, or null if not present.
+ */
+function getSeconds(durationField) {
+  if (!durationField) return null;
+  if (typeof durationField === 'object') {
+    return parseInt(durationField.seconds || 0, 10);
+  }
+  // String case, e.g. "123s"
+  return parseInt(String(durationField).replace('s', ''), 10);
+}
 
 module.exports = NodeHelper.create({
   start: function () {
@@ -78,13 +93,16 @@ module.exports = NodeHelper.create({
                 for (let i = 0; i < data.routes.length; i++) {
                   const r = data.routes[i];
                   const leg = r.legs[0];
+                  const staticSec = getSeconds(leg.staticDuration);
+                  const durSec = getSeconds(leg.duration);
                   const routeObj = {
                     summary: r.summary || '',
-                    time: leg.staticDuration ? parseInt(leg.staticDuration.replace('s', '')) : parseInt(leg.duration.replace('s', ''))
+                    time: staticSec != null ? staticSec : durSec
                   };
 
-                  if (leg.duration) {
-                    routeObj.timeInTraffic = parseInt(leg.duration.replace('s', ''));
+                  const trafficSec = getSeconds(leg.duration);
+                  if (trafficSec != null) {
+                    routeObj.timeInTraffic = trafficSec;
                   }
                   if (dest.config.mode && dest.config.mode == 'transit' && leg.steps) {
                     const transitInfo = [];
@@ -186,10 +204,12 @@ module.exports = NodeHelper.create({
               const r = data.routes[0];
               const legRes = r.legs[0];
               summaries.push(r.summary || '');
-              const time = legRes.staticDuration ? parseInt(legRes.staticDuration.replace('s', '')) : parseInt(legRes.duration.replace('s', ''));
+              const staticSec = getSeconds(legRes.staticDuration);
+              const durSec = getSeconds(legRes.duration);
+              const time = staticSec != null ? staticSec : durSec;
               totalTime += time;
-              if (legRes.duration) {
-                totalTimeInTraffic += parseInt(legRes.duration.replace('s', ''));
+              if (durSec != null) {
+                totalTimeInTraffic += durSec;
               }
               if (leg.config.mode && leg.config.mode == 'transit' && legRes.steps) {
                 const transitInfo = [];
