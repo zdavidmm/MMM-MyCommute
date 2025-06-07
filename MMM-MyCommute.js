@@ -185,9 +185,10 @@ Module.register('MMM-MyCommute', {
         var destHideDays = d.hideDays || [];
 
         if ( this.isInWindow( destStartTime, destEndTime, destHideDays ) ) {
-          var url = 'https://maps.googleapis.com/maps/api/directions/json' + this.getParams(d);
-          destinations.push({ url:url, config: d});
-          console.log(url);          
+          var url = 'https://routes.googleapis.com/directions/v2:computeRoutes?key=' + this.config.apikey;
+          var body = this.getBody(d);
+          destinations.push({ url:url, body:body, config: d});
+          console.log(url);
         }
 
       }
@@ -210,65 +211,38 @@ Module.register('MMM-MyCommute', {
 
   },
 
-  getParams: function(dest) {
+  getBody: function(dest) {
 
-    var params = '?';
-    params += 'origin=' + encodeURIComponent(this.config.origin);
-    params += '&destination=' + encodeURIComponent(dest.destination);
-    params += '&key=' + this.config.apikey;
+    var modeMap = {driving: 'DRIVE', walking: 'WALK', bicycling: 'BICYCLE', transit: 'TRANSIT'};
 
-    //travel mode
-    var mode = 'driving';
+    var body = {
+      origin: { address: this.config.origin },
+      destination: { address: dest.destination },
+      routingPreference: 'TRAFFIC_AWARE',
+      departureTime: new Date().toISOString()
+    };
+
+    var mode = 'DRIVE';
     if (dest.mode && this.travelModes.indexOf(dest.mode) != -1) {
-      mode = dest.mode;
-    } 
-    params += '&mode=' + mode;
+      mode = modeMap[dest.mode];
+    }
+    body.travelMode = mode;
 
-    //transit mode if travelMode = 'transit'
-    if (mode == 'transit' && dest.transitMode) {
-      var tModes = dest.transitMode.split("|");
-      var sanitizedTransitModes = '';
-      for (var i = 0; i < tModes.length; i++) {
-        if (this.transitModes.indexOf(tModes[i]) != -1) {
-          sanitizedTransitModes += (sanitizedTransitModes == '' ? tModes[i] : "|" + tModes[i]);
-        }
-      }
-      if (sanitizedTransitModes.length > 0) {
-        params += '&transit_mode=' + sanitizedTransitModes;
-      }
-    } 
     if (dest.alternatives == true) {
-      params += '&alternatives=true';
+      body.computeAlternativeRoutes = true;
     }
 
-    if (dest.waypoints) {
-      var waypoints = dest.waypoints.split("|");
-      for (var i = 0; i < waypoints.length; i++) {
-        waypoints[i] = "via:" + encodeURIComponent(waypoints[i]);
-      }
-      params += '&waypoints=' + waypoints.join("|");
-    } 
-
-    //avoid
     if (dest.avoid) {
       var a = dest.avoid.split("|");
-      var sanitizedAvoidOptions = '';
-      for (var i = 0; i < a.length; i++) {
-        if (this.avoidOptions.indexOf(a[i]) != -1) {
-          sanitizedAvoidOptions += (sanitizedAvoidOptions == '' ? a[i] : "|" + a[i]);
-        }
-      }
-      if (sanitizedAvoidOptions.length > 0) {
-        params += '&avoid=' + sanitizedAvoidOptions;
-      }
-
+      body.routeModifiers = {};
+      if (a.indexOf('tolls') != -1) body.routeModifiers.avoidTolls = true;
+      if (a.indexOf('highways') != -1) body.routeModifiers.avoidHighways = true;
+      if (a.indexOf('ferries') != -1) body.routeModifiers.avoidFerries = true;
     }
 
-    params += '&departure_time=now'; //needed for time based on traffic conditions
+    return body;
 
-    return params;
-
-  },  
+  },
 
   svgIconFactory: function(glyph) {
 

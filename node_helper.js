@@ -34,8 +34,16 @@ module.exports = NodeHelper.create({
     var returned = 0;
     var predictions = new Array();
 
-		payload.destinations.forEach(function(dest, index) {
-			request({url: dest.url, method: 'GET'}, function(error, response, body) {
+                payload.destinations.forEach(function(dest, index) {
+                        request({
+                          url: dest.url,
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                            'X-Goog-FieldMask': 'routes.duration,routes.legs.duration,routes.legs.staticDuration,routes.legs.steps'
+                          },
+                          body: JSON.stringify(dest.body)
+                        }, function(error, response, body) {
 				
         var prediction = new Object({
           config: dest.config
@@ -46,44 +54,46 @@ module.exports = NodeHelper.create({
           var data = JSON.parse(body);
 
 
-          if (data.error_message) {
-            console.log("MMM-MyCommute: " + data.error_message);
+          if (data.error && data.error.message) {
+            console.log("MMM-MyCommute: " + data.error.message);
             prediction.error = true;
           } else {
-  
+
             var routeList = new Array();
             for (var i = 0; i < data.routes.length; i++) {
               var r = data.routes[i];
+              var leg = r.legs[0];
               var routeObj = new Object({
-                summary: r.summary,
-                time: r.legs[0].duration.value
+                summary: r.summary || '',
+                time: leg.staticDuration ? parseInt(leg.staticDuration.replace('s','')) : parseInt(leg.duration.replace('s',''))
               });
 
-              if (r.legs[0].duration_in_traffic) {
-                routeObj.timeInTraffic = r.legs[0].duration_in_traffic.value;
+              if (leg.duration) {
+                routeObj.timeInTraffic = parseInt(leg.duration.replace('s',''));
               }
-              if (dest.config.mode && dest.config.mode == 'transit') {
+              if (dest.config.mode && dest.config.mode == 'transit' && leg.steps) {
                 var transitInfo = new Array();
                 var gotFirstTransitLeg = false;
-                for (var j = 0; j < r.legs[0].steps.length; j++) {
-                  var s = r.legs[0].steps[j];
+                for (var j = 0; j < leg.steps.length; j++) {
+                  var s = leg.steps[j];
 
-                  if (s.transit_details) {
+                  if (s.transitDetails) {
                     var arrivalTime = '';
                     if (!gotFirstTransitLeg && dest.config.showNextVehicleDeparture) {
                       gotFirstTransitLeg = true;
-                      // arrivalTime = ' <span class="transit-arrival-time">(next at ' + s.transit_details.departure_time.text + ')</span>';
-                      arrivalTime = moment(s.transit_details.departure_time.value * 1000);
+                      arrivalTime = moment(s.transitDetails.departureTime);
                     }
-                    transitInfo.push({routeLabel: s.transit_details.line.short_name ? s.transit_details.line.short_name : s.transit_details.line.name, vehicle: s.transit_details.line.vehicle.type, arrivalTime: arrivalTime});
+                    transitInfo.push({routeLabel: s.transitDetails.headsign || '', vehicle: s.transitDetails.vehicle, arrivalTime: arrivalTime});
                   }
+                }
+                if (transitInfo.length > 0) {
                   routeObj.transitInfo = transitInfo;
                 }
               }
               routeList.push(routeObj);
             }
             prediction.routes = routeList;
-            
+
           }
 
         } else {
