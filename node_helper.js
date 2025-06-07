@@ -128,6 +128,10 @@ module.exports = NodeHelper.create({
             }
             prediction.routes = routeList;
 
+            if (routeList.length > 0) {
+              dest.config.time = routeList[0].timeInTraffic || routeList[0].time;
+            }
+
           }
 
         } else {
@@ -169,6 +173,7 @@ module.exports = NodeHelper.create({
                             transitInfo: allTransitInfo.length > 0 ? allTransitInfo : null
                         }]
                     };
+                    dest.config.time = totalTimeInTraffic > 0 ? totalTimeInTraffic : totalTime;
                     callback(prediction);
                     return;
                 }
