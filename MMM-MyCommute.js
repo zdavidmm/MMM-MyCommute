@@ -222,7 +222,8 @@ Module.register('MMM-MyCommute', {
       }
       this.inWindow = true;
 
-      if (destinations.length > 0) {        
+      if (destinations.length > 0) {
+        Log.log("MMM-MyCommute: requesting predictions for " + destinations.length + " destinations");
         this.sendSocketNotification("GOOGLE_TRAFFIC_GET", {destinations: destinations, instanceId: this.identifier});
       } else {
         this.hide(1000, {lockString: this.identifier});
@@ -478,6 +479,7 @@ Module.register('MMM-MyCommute', {
   socketNotificationReceived: function(notification, payload) {
     if ( notification === 'GOOGLE_TRAFFIC_RESPONSE' + this.identifier ) {
 
+      Log.log("MMM-MyCommute: received predictions");
       this.predictions = payload;
 
       if (this.loading) {
@@ -490,7 +492,7 @@ Module.register('MMM-MyCommute', {
         }
       } else {
         this.updateDom();
-        this.show(1000, {lockString: this.identifier});        
+        this.show(1000, {lockString: this.identifier});
       }
       this.isHidden = false;
     }

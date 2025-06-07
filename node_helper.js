@@ -31,15 +31,18 @@ module.exports = NodeHelper.create({
         getPredictions: function(payload) {
                 var self = this;
 
+    console.log("MMM-MyCommute: fetching predictions for instance " + payload.instanceId);
     var returned = 0;
     var predictions = new Array();
 
                 payload.destinations.forEach(function(dest, index) {
+            console.log("MMM-MyCommute: requesting route for destination index " + index);
             if (dest.multiple) {
                 self.getMultiLegPrediction(dest, function(prediction) {
                     predictions[index] = prediction;
                     returned++;
                     if (returned == payload.destinations.length) {
+                        console.log("MMM-MyCommute: sending multi-leg predictions to instance " + payload.instanceId);
                         self.sendSocketNotification('GOOGLE_TRAFFIC_RESPONSE' + payload.instanceId, predictions);
                     }
                 });
@@ -71,9 +74,18 @@ module.exports = NodeHelper.create({
           config: dest.config
         });
 
-        if(!error && response.statusCode == 200){
+        if(!error && response && response.statusCode == 200){
 
-          var data = JSON.parse(body);
+          var data;
+          try {
+            data = JSON.parse(body);
+          } catch (e) {
+            console.error("MMM-MyCommute: Failed to parse response JSON", e);
+            prediction.error = true;
+            data = null;
+          }
+
+          if (data) {
 
 
           if (data.error && data.error.message) {
@@ -119,7 +131,7 @@ module.exports = NodeHelper.create({
           }
 
         } else {
-          console.log( "Error getting traffic prediction: " + response.statusCode );
+          console.log( "Error getting traffic prediction: " + (response ? response.statusCode : 'NO RESPONSE') );
           prediction.error = true;
 
         }
@@ -127,7 +139,8 @@ module.exports = NodeHelper.create({
         predictions[index] = prediction;
         returned++;
 
-        if (returned == payload.destinations.length) {          
+        if (returned == payload.destinations.length) {
+          console.log("MMM-MyCommute: sending predictions to instance " + payload.instanceId);
           self.sendSocketNotification('GOOGLE_TRAFFIC_RESPONSE' + payload.instanceId, predictions);
         };
 
