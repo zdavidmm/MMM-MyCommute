@@ -39,6 +39,7 @@ describe('Multi leg prediction', function() {
 
     helper.getMultiLegPrediction(dest, prediction => {
       assert.strictEqual(prediction.routes[0].time, 30);
+      assert.strictEqual(dest.config.time, 30);
       scope.done();
       done();
     });
