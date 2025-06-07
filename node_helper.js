@@ -179,7 +179,7 @@ module.exports = NodeHelper.create({
             console.log('Response Body:', body);
           }
 
-          if (!error && response.statusCode == 200) {
+          if (!error && response && response.statusCode == 200) {
             const data = JSON.parse(body);
             if (!(data.error && data.error.message)) {
               const r = data.routes[0];

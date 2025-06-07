@@ -6,6 +6,7 @@ describe('Google Routes API', function() {
   it('returns 403 error', function(done) {
     const scope = nock('https://routes.googleapis.com')
       .post('/directions/v2:computeRoutes')
+      .query({ key: 'BAD' })
       .reply(403, { error: 'forbidden' });
 
     request({
