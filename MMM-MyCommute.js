@@ -246,7 +246,6 @@ Module.register('MMM-MyCommute', {
     var body = {
       origin: { address: originOverride || this.config.origin },
       destination: { address: dest.destination },
-      routingPreference: 'TRAFFIC_AWARE',
       departureTime: new Date(Date.now() + 60000).toISOString()
     };
 
@@ -258,6 +257,10 @@ Module.register('MMM-MyCommute', {
       dest.transitMode = dest.mode;
     }
     body.travelMode = mode;
+
+    if (mode !== 'TRANSIT') {
+      body.routingPreference = 'TRAFFIC_AWARE';
+    }
 
     if (dest.transitMode) {
       body.transitPreferences = { allowedTravelModes: dest.transitMode.split('|').map(function(m){ return m.toUpperCase(); }) };
