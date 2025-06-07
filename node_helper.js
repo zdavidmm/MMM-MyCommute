@@ -44,6 +44,17 @@ module.exports = NodeHelper.create({
                           },
                           body: JSON.stringify(dest.body)
                         }, function(error, response, body) {
+        console.log("Request URL: " + dest.url);
+        console.log("Request Body: " + JSON.stringify(dest.body));
+        if (error) {
+          console.error("Request Error:", error);
+        }
+        if (response) {
+          console.log("Response Status Code:", response.statusCode);
+        }
+        if (body) {
+          console.log("Response Body:", body);
+        }
 				
         var prediction = new Object({
           config: dest.config
