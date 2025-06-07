@@ -154,6 +154,7 @@ Module.register('MMM-MyCommute', {
 
   */
   isInWindow: function(start, end, hideDays) {
+    Log.log('MMM-MyCommute: checking display window');
 
     var now = moment();
     var startTimeSplit = start.split(":");
@@ -167,10 +168,13 @@ Module.register('MMM-MyCommute', {
       return false;
     }
 
+    Log.log('MMM-MyCommute: within display window');
+
     return true;
   },
 
   getData: function() {
+    Log.log('MMM-MyCommute: fetching route data');
 
     //only poll if in window
     if ( this.isInWindow( this.config.startTime, this.config.endTime, this.config.hideDays ) ) {
@@ -179,6 +183,7 @@ Module.register('MMM-MyCommute', {
       for(var i = 0; i < this.config.destinations.length; i++) {
 
         var d = this.config.destinations[i];
+        Log.log('MMM-MyCommute: evaluating destination ' + d.label);
 
         var destStartTime = d.startTime || '00:00';
         var destEndTime = d.endTime || '23:59';
@@ -192,6 +197,7 @@ Module.register('MMM-MyCommute', {
             var legs = [];
             for (var l = 0; l < d.destination.length; l++) {
               var leg = d.destination[l];
+              Log.log('MMM-MyCommute: adding leg to ' + Object.values(leg)[0]);
               var addrKey = Object.keys(leg).filter(function(k){ return k !== 'mode'; })[0];
               var addr = leg[addrKey];
               var legConfig = {
@@ -211,6 +217,7 @@ Module.register('MMM-MyCommute', {
             destinations.push({ legs: legs, config: d, multiple: true });
 
           } else {
+            Log.log('MMM-MyCommute: single leg destination ' + d.label);
             var url = 'https://routes.googleapis.com/directions/v2:computeRoutes?key=' + this.config.apikey;
             var body = this.getBody(d);
             console.log(url);
@@ -224,6 +231,7 @@ Module.register('MMM-MyCommute', {
 
       if (destinations.length > 0) {
         Log.log("MMM-MyCommute: requesting predictions for " + destinations.length + " destinations");
+        Log.log('MMM-MyCommute: sending socket notification');
         this.sendSocketNotification("GOOGLE_TRAFFIC_GET", {destinations: destinations, instanceId: this.identifier});
       } else {
         this.hide(1000, {lockString: this.identifier});
@@ -236,11 +244,13 @@ Module.register('MMM-MyCommute', {
       this.hide(1000, {lockString: this.identifier});
       this.inWindow = false;
       this.isHidden = true;
+      Log.log('MMM-MyCommute: outside global display window');
     }
 
   },
 
   getBody: function(dest, originOverride) {
+    Log.log('MMM-MyCommute: building request body');
 
     var modeMap = {driving: 'DRIVE', walking: 'WALK', bicycling: 'BICYCLE', transit: 'TRANSIT'};
 
@@ -279,6 +289,8 @@ Module.register('MMM-MyCommute', {
       if (a.indexOf('ferries') != -1) body.routeModifiers.avoidFerries = true;
     }
 
+    Log.log('MMM-MyCommute: request body built');
+
     return body;
 
   },
@@ -295,6 +307,8 @@ Module.register('MMM-MyCommute', {
   },
 
   formatTime: function(time, timeInTraffic) {
+
+    Log.log('MMM-MyCommute: formatting time');
 
     var timeEl = document.createElement("span");
     timeEl.classList.add("travel-time");
@@ -317,11 +331,15 @@ Module.register('MMM-MyCommute', {
       timeEl.classList.add("status-good");
     }
 
+    Log.log('MMM-MyCommute: formatted time ' + timeEl.innerHTML);
+
     return timeEl;
 
   },
 
   getTransitIcon: function(dest, route) {
+
+    Log.log('MMM-MyCommute: determining transit icon');
 
     var transitIcon;
 
@@ -336,13 +354,18 @@ Module.register('MMM-MyCommute', {
       transitIcon = this.symbols[route.transitInfo[0].vehicle.toLowerCase()];
     }
 
+    Log.log('MMM-MyCommute: transit icon is ' + transitIcon);
+
     return transitIcon;
 
   },
 
   buildTransitSummary: function(transitInfo, summaryContainer) {
 
-    for (var i = 0; i < transitInfo.length; i++) {    
+    Log.log('MMM-MyCommute: building transit summary');
+
+    for (var i = 0; i < transitInfo.length; i++) {
+      Log.log('MMM-MyCommute: transit leg ' + (i + 1));
 
       var transitLeg = document.createElement("span");
         transitLeg.classList.add('transit-leg');
@@ -357,12 +380,17 @@ Module.register('MMM-MyCommute', {
 
       transitLeg.appendChild(routeNumber);
       summaryContainer.appendChild(transitLeg);
+      Log.log('MMM-MyCommute: added transit leg to summary');
     }
+
+    Log.log('MMM-MyCommute: transit summary complete');
 
   },
 
 
   getDom: function() {
+
+    Log.log('MMM-MyCommute: building DOM');
 
     var wrapper = document.createElement("div");
     
@@ -376,10 +404,13 @@ Module.register('MMM-MyCommute', {
 
     for (var i = 0; i < this.predictions.length; i++) {
 
+      Log.log('MMM-MyCommute: rendering prediction ' + i);
+
       var p = this.predictions[i];
 
       var row = document.createElement("div");
       row.classList.add("row");
+      Log.log('MMM-MyCommute: creating row for ' + p.config.label);
 
       var destination = document.createElement("span");
       destination.className = "destination-label bright";
@@ -470,13 +501,16 @@ Module.register('MMM-MyCommute', {
       
 
       wrapper.appendChild(row);
+      Log.log('MMM-MyCommute: row added to DOM');
     }
 
 
+    Log.log('MMM-MyCommute: DOM built');
     return wrapper;
   },
   
   socketNotificationReceived: function(notification, payload) {
+    Log.log('MMM-MyCommute: socket notification received ' + notification);
     if ( notification === 'GOOGLE_TRAFFIC_RESPONSE' + this.identifier ) {
 
       Log.log("MMM-MyCommute: received predictions");
@@ -497,14 +531,16 @@ Module.register('MMM-MyCommute', {
       this.isHidden = false;
     }
 
-
+    Log.log('MMM-MyCommute: socket processing complete');
   },
 
   notificationReceived: function(notification, payload, sender) {
+    Log.log('MMM-MyCommute: notification received ' + notification);
     if ( notification == 'DOM_OBJECTS_CREATED' && !this.inWindow) {
       this.hide(0, {lockString: this.identifier});
       this.isHidden = true;
     }
+    Log.log('MMM-MyCommute: notification processing complete');
   }
 
 });

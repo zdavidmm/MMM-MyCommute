@@ -150,6 +150,7 @@ module.exports = NodeHelper.create({
 
   getMultiLegPrediction: function (dest, callback) {
     const self = this;
+    console.log('MMM-MyCommute: starting multi-leg prediction');
     let legIndex = 0;
     let totalTime = 0;
     let totalTimeInTraffic = 0;
@@ -157,6 +158,7 @@ module.exports = NodeHelper.create({
     let allTransitInfo = [];
 
     function processNextLeg() {
+      console.log('MMM-MyCommute: processing leg ' + (legIndex + 1));
       if (legIndex >= dest.legs.length) {
         const prediction = {
           config: dest.config,
@@ -170,6 +172,7 @@ module.exports = NodeHelper.create({
           ]
         };
         dest.config.time = totalTimeInTraffic > 0 ? totalTimeInTraffic : totalTime;
+        console.log('MMM-MyCommute: multi-leg prediction complete');
         callback(prediction);
         return;
       }
@@ -226,11 +229,13 @@ module.exports = NodeHelper.create({
             }
           }
           legIndex++;
+          console.log('MMM-MyCommute: moving to next leg');
           processNextLeg();
         }
       );
     }
 
     processNextLeg();
+    console.log('MMM-MyCommute: multi-leg request queued');
   }
 });
