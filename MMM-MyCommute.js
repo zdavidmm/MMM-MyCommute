@@ -185,10 +185,38 @@ Module.register('MMM-MyCommute', {
         var destHideDays = d.hideDays || [];
 
         if ( this.isInWindow( destStartTime, destEndTime, destHideDays ) ) {
-          var url = 'https://routes.googleapis.com/directions/v2:computeRoutes?key=' + this.config.apikey;
-          var body = this.getBody(d);
-          destinations.push({ url:url, body:body, config: d});
-          console.log(url);
+
+          // handle multiple legs
+          if (d.mode === 'multiple' && Array.isArray(d.destination)) {
+            var prevOrigin = this.config.origin;
+            var legs = [];
+            for (var l = 0; l < d.destination.length; l++) {
+              var leg = d.destination[l];
+              var addrKey = Object.keys(leg).filter(function(k){ return k !== 'mode'; })[0];
+              var addr = leg[addrKey];
+              var legConfig = {
+                destination: addr,
+                mode: leg.mode
+              };
+              if (this.transitModes.indexOf(leg.mode) !== -1) {
+                legConfig.mode = 'transit';
+                legConfig.transitMode = leg.mode;
+              }
+              var url = 'https://routes.googleapis.com/directions/v2:computeRoutes?key=' + this.config.apikey;
+              var body = this.getBody(legConfig, prevOrigin);
+              console.log(url);
+              legs.push({ url: url, body: body, config: legConfig });
+              prevOrigin = addr;
+            }
+            destinations.push({ legs: legs, config: d, multiple: true });
+
+          } else {
+            var url = 'https://routes.googleapis.com/directions/v2:computeRoutes?key=' + this.config.apikey;
+            var body = this.getBody(d);
+            console.log(url);
+            destinations.push({ url:url, body:body, config: d});
+          }
+
         }
 
       }
@@ -211,12 +239,12 @@ Module.register('MMM-MyCommute', {
 
   },
 
-  getBody: function(dest) {
+  getBody: function(dest, originOverride) {
 
     var modeMap = {driving: 'DRIVE', walking: 'WALK', bicycling: 'BICYCLE', transit: 'TRANSIT'};
 
     var body = {
-      origin: { address: this.config.origin },
+      origin: { address: originOverride || this.config.origin },
       destination: { address: dest.destination },
       routingPreference: 'TRAFFIC_AWARE',
       departureTime: new Date(Date.now() + 60000).toISOString()
@@ -225,8 +253,15 @@ Module.register('MMM-MyCommute', {
     var mode = 'DRIVE';
     if (dest.mode && this.travelModes.indexOf(dest.mode) != -1) {
       mode = modeMap[dest.mode];
+    } else if (dest.mode && this.transitModes.indexOf(dest.mode) != -1) {
+      mode = modeMap['transit'];
+      dest.transitMode = dest.mode;
     }
     body.travelMode = mode;
+
+    if (dest.transitMode) {
+      body.transitPreferences = { allowedTravelModes: dest.transitMode.split('|').map(function(m){ return m.toUpperCase(); }) };
+    }
 
     if (dest.alternatives == true) {
       body.computeAlternativeRoutes = true;

@@ -28,13 +28,24 @@ module.exports = NodeHelper.create({
 
 
 	
-	getPredictions: function(payload) {
-		var self = this;
+        getPredictions: function(payload) {
+                var self = this;
 
     var returned = 0;
     var predictions = new Array();
 
                 payload.destinations.forEach(function(dest, index) {
+            if (dest.multiple) {
+                self.getMultiLegPrediction(dest, function(prediction) {
+                    predictions[index] = prediction;
+                    returned++;
+                    if (returned == payload.destinations.length) {
+                        self.sendSocketNotification('GOOGLE_TRAFFIC_RESPONSE' + payload.instanceId, predictions);
+                    }
+                });
+                return;
+            }
+
                         request({
                           url: dest.url,
                           method: 'POST',
@@ -122,6 +133,87 @@ module.exports = NodeHelper.create({
 
       });
     });
-	}
+        }
+
+        ,
+
+        getMultiLegPrediction: function(dest, callback) {
+            var self = this;
+            var legIndex = 0;
+            var totalTime = 0;
+            var totalTimeInTraffic = 0;
+            var summaries = [];
+            var allTransitInfo = [];
+
+            function processNextLeg() {
+                if (legIndex >= dest.legs.length) {
+                    var prediction = {
+                        config: dest.config,
+                        routes: [{
+                            summary: summaries.join(' | '),
+                            time: totalTime,
+                            timeInTraffic: totalTimeInTraffic > 0 ? totalTimeInTraffic : null,
+                            transitInfo: allTransitInfo.length > 0 ? allTransitInfo : null
+                        }]
+                    };
+                    callback(prediction);
+                    return;
+                }
+
+                var leg = dest.legs[legIndex];
+                request({
+                    url: leg.url,
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Goog-FieldMask': 'routes.duration,routes.legs.duration,routes.legs.staticDuration,routes.legs.steps'
+                    },
+                    body: JSON.stringify(leg.body)
+                }, function(error, response, body) {
+                    console.log('Request URL: ' + leg.url);
+                    console.log('Request Body: ' + JSON.stringify(leg.body));
+                    if (error) {
+                        console.error('Request Error:', error);
+                    }
+                    if (response) {
+                        console.log('Response Status Code:', response.statusCode);
+                    }
+                    if (body) {
+                        console.log('Response Body:', body);
+                    }
+
+                    if(!error && response.statusCode == 200){
+                        var data = JSON.parse(body);
+                        if(!(data.error && data.error.message)) {
+                            var r = data.routes[0];
+                            var legRes = r.legs[0];
+                            summaries.push(r.summary || '');
+                            var time = legRes.staticDuration ? parseInt(legRes.staticDuration.replace('s','')) : parseInt(legRes.duration.replace('s',''));
+                            totalTime += time;
+                            if (legRes.duration) {
+                                totalTimeInTraffic += parseInt(legRes.duration.replace('s',''));
+                            }
+                            if (leg.config.mode && leg.config.mode == 'transit' && legRes.steps) {
+                                var transitInfo = [];
+                                for (var j=0; j<legRes.steps.length; j++) {
+                                    var s = legRes.steps[j];
+                                    if (s.transitDetails) {
+                                        transitInfo.push({routeLabel: s.transitDetails.headsign || '', vehicle: s.transitDetails.vehicle});
+                                    }
+                                }
+                                if (transitInfo.length > 0) {
+                                    allTransitInfo = allTransitInfo.concat(transitInfo);
+                                }
+                            }
+                        }
+                    }
+                    legIndex++;
+                    processNextLeg();
+                });
+            }
+
+            processNextLeg();
+        }
+
 	
 });
