@@ -40,6 +40,7 @@ module.exports = NodeHelper.create({
                           method: 'POST',
                           headers: {
                             'Content-Type': 'application/json',
+                            'X-Goog-Api-Key': dest.apikey || '',
                             'X-Goog-FieldMask': 'routes.duration,routes.legs.duration,routes.legs.staticDuration,routes.legs.steps'
                           },
                           body: JSON.stringify(dest.body)
@@ -98,6 +99,16 @@ module.exports = NodeHelper.create({
 
         } else {
           console.log( "Error getting traffic prediction: " + response.statusCode );
+          if (body) {
+            try {
+              var errData = JSON.parse(body);
+              if (errData.error && errData.error.message) {
+                console.log("MMM-MyCommute: " + errData.error.message);
+              }
+            } catch (e) {
+              // ignore json parse errors
+            }
+          }
           prediction.error = true;
 
         }

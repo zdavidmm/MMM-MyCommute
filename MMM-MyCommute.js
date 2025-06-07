@@ -185,10 +185,9 @@ Module.register('MMM-MyCommute', {
         var destHideDays = d.hideDays || [];
 
         if ( this.isInWindow( destStartTime, destEndTime, destHideDays ) ) {
-          var url = 'https://routes.googleapis.com/directions/v2:computeRoutes?key=' + this.config.apikey;
+          var url = 'https://routes.googleapis.com/directions/v2:computeRoutes';
           var body = this.getBody(d);
-          destinations.push({ url:url, body:body, config: d});
-          console.log(url);
+          destinations.push({ url:url, body:body, apikey: this.config.apikey, config: d});
         }
 
       }
