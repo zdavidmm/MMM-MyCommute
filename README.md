@@ -3,7 +3,7 @@ This a module for the [MagicMirror](https://github.com/MichMich/MagicMirror/tree
 
 It shows your commute time using Google's **Routes API v2** (requires an API key from Google).
 
-It is a fork of `mrx-work-traffic` by Dominic Marx.
+This is a fork of MMM-MyCommute which is a fork of `mrx-work-traffic` by Dominic Marx.
 https://github.com/domsen123/mrx-work-traffic
 
 ![Screen Shot](/../screenshots/MMM-MyCommute-screenshot.png?raw=true "Screen Shot")
