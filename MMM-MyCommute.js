@@ -337,21 +337,43 @@ Module.register('MMM-MyCommute', {
 
   },
 
+  getVehicleKey: function(vehicle) {
+
+    if (!vehicle) return 'transit';
+
+    if (typeof vehicle === 'string') {
+      return vehicle.toLowerCase();
+    }
+
+    if (vehicle.type) {
+      return String(vehicle.type).toLowerCase();
+    }
+
+    if (vehicle.name) {
+      return String(vehicle.name).toLowerCase();
+    }
+
+    return 'transit';
+
+  },
+
   getTransitIcon: function(dest, route) {
 
     Log.log('MMM-MyCommute: determining transit icon');
 
     var transitIcon;
 
+    var vehicleKey = this.getVehicleKey(route.transitInfo && route.transitInfo[0] ? route.transitInfo[0].vehicle : null);
+
     if (dest.transitMode) {
-      var transitIcon = dest.transitMode.split("|")[0];
+      transitIcon = dest.transitMode.split("|")[0];
       if (this.symbols[transitIcon] != null) {
         transitIcon = this.symbols[transitIcon];
       } else {
-        transitIcon = this.symbols[route.transitInfo[0].vehicle.toLowerCase()];
+        transitIcon = this.symbols[vehicleKey];
       }
     } else {
-      transitIcon = this.symbols[route.transitInfo[0].vehicle.toLowerCase()];
+      transitIcon = this.symbols[vehicleKey];
     }
 
     Log.log('MMM-MyCommute: transit icon is ' + transitIcon);
@@ -369,7 +391,8 @@ Module.register('MMM-MyCommute', {
 
       var transitLeg = document.createElement("span");
         transitLeg.classList.add('transit-leg');
-        transitLeg.appendChild(this.svgIconFactory(this.symbols[transitInfo[i].vehicle.toLowerCase()]));
+        var vehicleKey = this.getVehicleKey(transitInfo[i].vehicle);
+        transitLeg.appendChild(this.svgIconFactory(this.symbols[vehicleKey]));
 
       var routeNumber = document.createElement("span");
         routeNumber.innerHTML = transitInfo[i].routeLabel;
