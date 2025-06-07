@@ -219,7 +219,7 @@ Module.register('MMM-MyCommute', {
       origin: { address: this.config.origin },
       destination: { address: dest.destination },
       routingPreference: 'TRAFFIC_AWARE',
-      departureTime: new Date().toISOString()
+      departureTime: new Date(Date.now() + 60000).toISOString()
     };
 
     var mode = 'DRIVE';
